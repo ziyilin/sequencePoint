@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.sjtu.stap</groupId>
+  <artifactId>checkMate</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.ow2.asm</groupId>
+  		<artifactId>asm-all</artifactId>
+  		<version>5.0.3</version>
+  	</dependency>
+	<dependency>
+	<groupId>commons-io</groupId>
+	<artifactId>commons-io</artifactId>
+	<version>2.4</version>
+</dependency>
+<dependency>
+	<groupId>edu.stanford</groupId>
+	<artifactId>chord</artifactId>
+	<version>2.1</version>
+</dependency>
+<dependency>
+	<groupId>edu.illinois.jacontebe</groupId>
+	<artifactId>jacontebe</artifactId>
+	<version>1.0</version>
+</dependency>
+
+
+  </dependencies>
+  
+</project>

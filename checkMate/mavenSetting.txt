@@ -1,0 +1,43 @@
+1.Set maven's repository to the mirror in China at conf/settings.xml:
+<profiles>
+	<profile>
+		<id>sjtu</id>
+		<repositories>
+			<repository>
+				<releases>
+					<enabled>true</enabled>
+				</releases>
+				<snapshots>
+					<enabled>true</enabled>
+				</snapshots>
+				<id>central</id>
+				<url>http://repo1.maven.org/maven2</url>
+			</repository>
+			<repository>  
+				<id>CN</id>  
+				<name>Maven Mirror</name>  
+				<url>http://maven.oschina.net/content/groups/public/</url>
+			</repository>  
+		</repositories>
+		<pluginRepositories>
+			<pluginRepository>  
+				<id>maven-net-cn</id>  
+				<name>Maven China Mirror</name>  
+				<url>http://maven.oschina.net/content/groups/public/</url>  
+				<releases>  
+					<enabled>true</enabled>  
+				</releases>  
+				<snapshots>  
+					<enabled>false</enabled>  
+				</snapshots>       
+			</pluginRepository>  
+		</pluginRepositories>
+	</profile>
+</profiles>
+<activeProfiles>
+	<activeProfile>sjtu</activeProfile>
+</activeProfiles>
+
+2.Run following commands to install jars that cannot get from maven repository to your local repository:
+mvn install:install-file -Dfile=lib/chord.jar -DgroupId=edu.stanford -DartifactId=chord -Dversion=2.1 -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=lib/jacontebe-1.0.jar -DgroupId=edu.illinois.jacontebe -DartifactId=jacontebe -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true
