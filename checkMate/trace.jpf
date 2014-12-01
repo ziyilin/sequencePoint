@@ -1,0 +1,6 @@
+#--- dependencies on other JPF modules
+
+#--- what JPF should run
+target = edu.sjtu.stap.checkmate.sample.TraceProgram
+classpath = bin
+#--- other stuff that defines how to run JPF
