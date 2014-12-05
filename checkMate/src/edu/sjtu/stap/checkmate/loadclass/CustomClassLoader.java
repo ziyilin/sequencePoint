@@ -1,5 +1,9 @@
 package edu.sjtu.stap.checkmate.loadclass;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+
 /**
  * Custom ClassLoader
  * 
@@ -7,23 +11,32 @@ package edu.sjtu.stap.checkmate.loadclass;
  *
  */
 public class CustomClassLoader extends ClassLoader {
-	
-    public CustomClassLoader(ClassLoader classLoader) {
-        super(classLoader);
-    }
+	// private final ClassLoader parent;
 
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        System.out.println("Loading class :" + name);
-        return super.loadClass(name);
-    }
+	public CustomClassLoader(ClassLoader classLoader) {
+		super(classLoader);
+		// parent = this.getParent()
+	}
 
 	@Override
-	protected Class<?> loadClass(String name, boolean resolve)
-			throws ClassNotFoundException {
-		Class c = super.loadClass(name, resolve);
-		System.out.println(c.getName());
-		return c;
+	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		System.out.println("Loading class :" + name);
+		Class clazz = this.findLoadedClass(name);
+		if (clazz == null) { // Check if the class has already been loaded.
+			byte[] classData = getClassData(name);
+			if (classData == null)
+				throw new ClassNotFoundException();
+			clazz = defineClass(name, classData, 0, classData.length); // Return
+																		// the
+																		// class
+																		// instance;
+		}
+		return clazz;
+	}
+
+	private byte[] getClassData(String name) {
+
+		return null;
 	}
 
 }
