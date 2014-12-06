@@ -23,5 +23,4 @@ public class Person {
 	public void setGender(int gender) {
 		this.gender = gender;
 	}
-	
 }
