@@ -1,5 +1,6 @@
 package edu.sjtu.stap.checkmate.loadclass.test;
 
+
 public class Demo {
 	private Person testPerson = new Person();
 

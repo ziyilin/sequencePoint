@@ -14,41 +14,33 @@ public class CustomClassLoader extends ClassLoader {
 	// private final ClassLoader parent;
 	private static int count = 0;
 
+	/*
+	 * Set parent classloader to bootstrap. 
+	 */
+	public CustomClassLoader() {
+		super(null);
+	}
+	
 	public CustomClassLoader(ClassLoader parent) {
 		super(parent);
-		// this.parent = parent;
 	}
-
-	// public CustomClassLoader() {
-	// super(CustomClassLoader.class.getClassLoader());
-	// }
 
 	@Override
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if (name.contains("Person"))
-			System.out.println("TEST");
+	public synchronized Class<?> loadClass(String name) throws ClassNotFoundException {
 		System.out.println("Loading class :" + name + "; Count = " + count++);
-		// return loadClass(name, false);
-
+		
+		// First, check if the class has already been loaded
 		Class clazz = findLoadedClass(name);
-		if (clazz == null) {
-			clazz = super.loadClass(name);
+		
+		if ( clazz == null ) {
+			// try load from bootstrap 
 		}
-		System.out.println(clazz.getName());
+		if (clazz == null ) {
+			// Define a new class with instrumentation.
+		}
 		return clazz;
-
 	}
 
-	// @Override
-	// protected Class<?> loadClass(String name, boolean resolve)
-	// throws ClassNotFoundException {
-	// Class clazz = findLoadedClass(name);
-	// if ( clazz == null ) {
-	// clazz = super.loadClass(name, false);
-	// }
-	// System.out.println(clazz.getName());
-	// return clazz;
-	// }
 
 	private byte[] getClassData(String name) {
 
