@@ -1,5 +1,6 @@
 package edu.sjtu.stap.checkmate.instrument;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -14,5 +15,5 @@ public class CustomizedMethodVisitor extends MethodVisitor implements Opcodes{
 		 super(ASM5, mv);
 	     codeTemplate = new CodeTemplate(mv);
 	}
-	
+
 }

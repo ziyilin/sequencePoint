@@ -88,10 +88,14 @@ public class CustomClassLoader extends ClassLoader {
 				}
 				is.close();
 				byte[] classData = buffer.toByteArray();
-				
+
 				// Check if the class need to be instrumentated.
-				if (candidateClassesPool.get(name) != null) {
+				InstrumentInfo instrumentInfo = candidateClassesPool.get(name);
+				if (instrumentInfo != null) {
 					System.out.println("Need Instrumation: " + name);
+
+					classData = ClassLoaderHelper.lineBasedInstrumentation(
+							classData, instrumentInfo.getLines());
 				}
 
 				return defineClass(name, classData, 0, classData.length);
