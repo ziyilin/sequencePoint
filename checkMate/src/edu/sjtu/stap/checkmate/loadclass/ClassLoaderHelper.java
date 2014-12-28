@@ -30,7 +30,12 @@ public class ClassLoaderHelper {
 		candidates.put("edu.sjtu.stap.checkmate.loadclass.test.DemoThread2",
 				new InstrumentInfo(
 						"edu.sjtu.stap.checkmate.loadclass.test.DemoThread2",
-						1, 11, "2"));
+						1, 13, "2"));
+
+		// In Jar, Name=JarTest, SeqNumber = 3, Line = 9, tag = "3";
+		candidates.put("edu.sjtu.stap.monday.utils.JarTest",
+				new InstrumentInfo("edu.sjtu.stap.monday.utils.JarTest", 3, 9,
+						"3"));
 
 	}
 
