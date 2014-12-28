@@ -37,6 +37,10 @@ public class ClassLoaderHelper {
 				new InstrumentInfo("edu.sjtu.stap.monday.utils.JarTest", 3, 9,
 						"3"));
 
+		// In Jar, Name=java.util.logging.Logger, SeqNumber = 4, Line = 495, tag = "4";
+		candidates.put("java.util.logging.Logger",
+				new InstrumentInfo("java.util.logging.Logger", 4, 495,
+						"4"));
 	}
 
 	public static byte[] lineBasedInstrumentation(byte[] clazz, int line) {

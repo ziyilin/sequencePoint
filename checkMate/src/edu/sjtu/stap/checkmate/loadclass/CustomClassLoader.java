@@ -51,8 +51,6 @@ public class CustomClassLoader extends ClassLoader {
 		// Try loading class from classpath
 		clazz = loadClassFromClasspath(name);
 		if (clazz != null) {
-			// System.out.println("Succeed loading Class " + name
-			// + " from classpath.");
 			return clazz;
 		}
 
@@ -87,7 +85,7 @@ public class CustomClassLoader extends ClassLoader {
 				JarFile jarFile = null;
 				try {
 					jarFile = new JarFile(fileJar);
-					
+
 					// Replace "." with "/" instead of "\\".
 					String slashName = name.replace(".", "/") + ".class";
 					JarEntry entry = jarFile.getJarEntry(slashName);
@@ -96,13 +94,17 @@ public class CustomClassLoader extends ClassLoader {
 						if (is != null) {
 							byte[] classData = getClassDataByte(is);
 							// Check if the class need to be instrumentated.
-							InstrumentInfo instrumentInfo = candidateInstrumentationPool.get(name);
+							InstrumentInfo instrumentInfo = candidateInstrumentationPool
+									.get(name);
 							if (instrumentInfo != null) {
-								// System.out.println("Need Instrumation: " + name);
-								classData = ClassLoaderHelper.lineBasedInstrumentation(
-										classData, instrumentInfo.getLines());
+								// System.out.println("Need Instrumation: " +
+								// name);
+								classData = ClassLoaderHelper
+										.lineBasedInstrumentation(classData,
+												instrumentInfo.getLines());
 							}
-							return defineClass(name, classData, 0, classData.length);
+							return defineClass(name, classData, 0,
+									classData.length);
 						}
 					}
 				} catch (IOException e) {
@@ -142,7 +144,8 @@ public class CustomClassLoader extends ClassLoader {
 		if (is != null) {
 			byte[] classData = getClassDataByte(is);
 			// Check if the class need to be instrumentated.
-			InstrumentInfo instrumentInfo = candidateInstrumentationPool.get(name);
+			InstrumentInfo instrumentInfo = candidateInstrumentationPool
+					.get(name);
 			if (instrumentInfo != null) {
 				// System.out.println("Need Instrumation: " + name);
 
