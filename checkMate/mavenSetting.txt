@@ -1,4 +1,6 @@
-1.Set maven's repository to the mirror in China at conf/settings.xml:
+1.Comment out <mirror></mirror> setting.
+Set maven's repository to the mirror in China at conf/settings.xml:
+
 <profiles>
 	<profile>
 		<id>sjtu</id>
