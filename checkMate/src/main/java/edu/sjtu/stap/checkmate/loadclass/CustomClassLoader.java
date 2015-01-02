@@ -15,20 +15,12 @@ import edu.sjtu.stap.checkmate.type.InstrumentInfo;
  */
 public class CustomClassLoader extends ClassLoader {
 	
-	private static final String[] classpath = System.getProperty(
-			"java.class.path").split(File.pathSeparator);
-	
 	private static final Hashtable<String, InstrumentInfo> candidateClassesPool = ClassLoaderHelper
 			.getInstrumentCandidates();
 
-	private final ClassLoader parent;
 
 	public CustomClassLoader(ClassLoader parent) {
 		super(parent);
-		this.parent = parent;
-		// for (String s : classpath) {
-		// System.out.println("Classpath: " + s);
-		// }
 	}
 
 	@Override
@@ -36,7 +28,7 @@ public class CustomClassLoader extends ClassLoader {
 			throws ClassNotFoundException {
 		System.out.println("Try load class: " + name);
 		// First, check if the class has already been loaded
-		Class clazz = findLoadedClass(name);
+		Class<?> clazz = findLoadedClass(name);
 
 		if (clazz != null)
 			return clazz;
@@ -54,7 +46,6 @@ public class CustomClassLoader extends ClassLoader {
 		if (clazz != null) {
 			// Define a new class with instrumentation.
 		}
-		// this.defineClass(name, b, off, len)
 		return super.loadClass(name);
 	}
 
@@ -70,9 +61,6 @@ public class CustomClassLoader extends ClassLoader {
 		// }
 
 		String slashName = name.replace(".", File.separator);
-		// for (String s : classpath) {
-		// String fullQualifiedName = s + "\\" + slashName + ".class";
-		// Need NOT Full Path
 		String fullQualifiedName = File.separator + slashName + ".class";
 
 		try {
@@ -103,8 +91,6 @@ public class CustomClassLoader extends ClassLoader {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
-
-		// }
 		return null;
 	}
 

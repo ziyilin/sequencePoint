@@ -1,0 +1,2 @@
+mvn install:install-file -Dfile=lib/chord.jar -DgroupId=edu.stanford -DartifactId=chord -Dversion=2.1 -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=lib/jacontebe-1.0.jar -DgroupId=edu.illinois.jacontebe -DartifactId=jacontebe -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true

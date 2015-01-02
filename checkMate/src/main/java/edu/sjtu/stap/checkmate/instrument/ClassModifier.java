@@ -1,5 +1,6 @@
 package edu.sjtu.stap.checkmate.instrument;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ public abstract class ClassModifier {
 	}
 	
 	protected String getDefaultBootPath() {
-		return System.getProperty("user.dir")+"/"+OUTPUT_BASE+"/";
+		return System.getProperty("user.dir")+File.separator+OUTPUT_BASE+File.separator;
 	}
 	
 	protected Map<String, Object> basicConfig(String qualifiedClassName){
@@ -62,7 +63,7 @@ public abstract class ClassModifier {
 	private String parseClassPath(String qualifiedClassName) {
 		int lastDot=qualifiedClassName.lastIndexOf(".");
 		if(lastDot>0){
-			return qualifiedClassName.substring(0, lastDot).replace('.', '/');
+			return qualifiedClassName.substring(0, lastDot).replace('.', File.separatorChar);
 		}
 		return null;
 	}
