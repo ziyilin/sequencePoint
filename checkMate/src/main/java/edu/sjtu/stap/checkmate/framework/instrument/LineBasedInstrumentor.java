@@ -1,18 +1,23 @@
 package edu.sjtu.stap.checkmate.framework.instrument;
 
 import java.util.Hashtable;
+import java.util.Properties;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import edu.sjtu.stap.checkmate.instrumentation.LineBasedCVFactory;
-import edu.sjtu.stap.checkmate.instrumentation.LineBasedMVFactory;
+import edu.sjtu.stap.squencepoint.instrumentation.LineBasedCVFactory;
+import edu.sjtu.stap.squencepoint.instrumentation.LineBasedMVFactory;
 
 public class LineBasedInstrumentor extends Instrumentor {
 
+	public LineBasedInstrumentor(Properties p) {
+		super(p);
+		initiateData();
+	}
+
 	private Hashtable<String, InstrumentInfo> candidates;
-	private String currentClass;
 
 	@Override
 	protected boolean needInstru(String className) {
@@ -23,7 +28,7 @@ public class LineBasedInstrumentor extends Instrumentor {
 		return candidates.get(className) != null;
 	}
 
-	private void initiateData() {
+	final protected void initiateData() {
 		candidates= new Hashtable<String, InstrumentInfo>();
 		String prefix="candidates.";
 		int number=Integer.parseInt(properties.getProperty(prefix+"num"));

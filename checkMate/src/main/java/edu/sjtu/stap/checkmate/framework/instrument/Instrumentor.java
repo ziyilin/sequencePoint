@@ -18,9 +18,15 @@ public abstract class Instrumentor {
 
 	//This is "instrument.properties" file.
 	protected Properties properties;
+	protected String currentClass;
+	
+	public Instrumentor(Properties p){
+		this.properties=p;
+	}
 	
 	abstract protected boolean needInstru(String className);
 	abstract protected void doInstrument(byte[] classData);
+	abstract protected void initiateData();
 	
 	public void instrument(String className, byte[] classData){
 		if(needInstru(className)){

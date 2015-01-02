@@ -1,10 +1,12 @@
 package edu.sjtu.stap.checkmate.instrument;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import edu.illinois.jacontebe.asm.Constants;
 import edu.illinois.jacontebe.asm.MethodInfor;
 
 /**
@@ -16,6 +18,9 @@ import edu.illinois.jacontebe.asm.MethodInfor;
  *
  */
 public class ThreadModifier extends ClassModifier{
+	
+	private static final String OUTPUT_BASE="boot_classes";
+	private String bootPath;
 	
 	public static void main(String[] args) throws IOException {
 		ThreadModifier modifier=new ThreadModifier();
@@ -39,14 +44,54 @@ public class ThreadModifier extends ClassModifier{
 		initMvFactory();
 	}
 	
-	private void initMvFactory(){
+	final protected void initMvFactory(){
 		mvfactory=new ThreadMVFactory();
 	}
 	
-	protected Map<String, Object> specifyConfig() {
-		return basicConfig("java.lang.Thread");
+	private String getDefaultBootPath() {
+		return System.getProperty("user.dir")+File.separator+OUTPUT_BASE+File.separator;
+	}
+	
+	protected Map<String, Object> specificConfig() {
+		String qualifiedClassName = "java.lang.Thread";
+		Map<String, Object> properties = basicConfig(qualifiedClassName);
+		String classPath=parseClassPath(qualifiedClassName);
+		String outputDirectory = bootPath + classPath;
+		String classFile=parseClassFile(qualifiedClassName);
+		String outputFile = classFile;
+		properties.put(Constants.OUTPUT_FILENAME, outputFile);
+		properties.put(Constants.OUTPUT_DIRECTORY, outputDirectory);
+		return properties;
 	}
 
+	/**
+	 * Convert class's package name to the form of directory path.
+	 * For example, <code>java.lang.Thread</code> will return <code>java/lang/</code>.
+	 * @param qualifiedClassName
+	 * @return null if could not parse correctly.
+	 */
+	private String parseClassPath(String qualifiedClassName) {
+		int lastDot=qualifiedClassName.lastIndexOf(".");
+		if(lastDot>0){
+			return qualifiedClassName.substring(0, lastDot).replace('.', File.separatorChar);
+		}
+		return null;
+	}
+	
+	/**
+	 * Get class file's name from the given qualified class name.
+	 * For example, <code>java.lang.Thread</code> will return <code>Thread.class</code>.
+	 * @param qualifiedClassName
+	 * @return null if could not parse correctly.
+	 */
+	private String parseClassFile(String qualifiedClassName) {
+		int lastDot=qualifiedClassName.lastIndexOf(".");
+		if(lastDot>0){
+			return qualifiedClassName.substring(lastDot)+".class";
+		}
+		return null;
+	}
+	
 	protected List<MethodInfor> addMethods2Transform() {
 		List<MethodInfor> methods2Tran=new ArrayList<MethodInfor>();
 		methods2Tran.add(new MethodInfor("start", "()v"));

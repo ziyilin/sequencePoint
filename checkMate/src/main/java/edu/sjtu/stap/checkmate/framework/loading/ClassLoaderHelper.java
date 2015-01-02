@@ -2,6 +2,8 @@ package edu.sjtu.stap.checkmate.framework.loading;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 import edu.sjtu.stap.checkmate.framework.instrument.Instrumentor;
@@ -29,16 +31,23 @@ public class ClassLoaderHelper {
 		String instumentorClass=prop.getProperty("instumentorClass");
 		try {
 			Class<Instrumentor> clazz=(Class<Instrumentor>) Class.forName(instumentorClass);
-			instru=clazz.newInstance();
-			instru.setProperties(prop);
+			Constructor<Instrumentor> con=clazz.getConstructor(Properties.class);
+			instru=con.newInstance(prop);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
 		}
-		
 	}
 
 	private static void getInstrumentationSettings() {
