@@ -8,6 +8,8 @@ public class DemoThread2 implements Runnable {
 	}
 	@Override
 	public void run() {
+		
+		
 		p.setAge(3);
 	}
 

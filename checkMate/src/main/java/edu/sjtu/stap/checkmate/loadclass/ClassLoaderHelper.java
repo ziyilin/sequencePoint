@@ -30,8 +30,17 @@ public class ClassLoaderHelper {
 		candidates.put("edu.sjtu.stap.checkmate.loadclass.test.DemoThread2",
 				new InstrumentInfo(
 						"edu.sjtu.stap.checkmate.loadclass.test.DemoThread2",
-						1, 11, "2"));
+						1, 13, "2"));
 
+		// In Jar, Name=JarTest, SeqNumber = 3, Line = 9, tag = "3";
+		candidates.put("edu.sjtu.stap.monday.utils.JarTest",
+				new InstrumentInfo("edu.sjtu.stap.monday.utils.JarTest", 3, 9,
+						"3"));
+
+		// In Jar, Name=java.util.logging.Logger, SeqNumber = 4, Line = 495, tag = "4";
+		candidates.put("java.util.logging.Logger",
+				new InstrumentInfo("java.util.logging.Logger", 4, 495,
+						"4"));
 	}
 
 	public static byte[] lineBasedInstrumentation(byte[] clazz, int line) {
