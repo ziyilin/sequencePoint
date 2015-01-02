@@ -1,10 +1,8 @@
 package edu.sjtu.stap.checkmate.loadclass;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Hashtable;
 
 import edu.sjtu.stap.checkmate.type.InstrumentInfo;
@@ -16,9 +14,10 @@ import edu.sjtu.stap.checkmate.type.InstrumentInfo;
  *
  */
 public class CustomClassLoader extends ClassLoader {
+	
 	private static final String[] classpath = System.getProperty(
-			"java.class.path").split(";");
-
+			"java.class.path").split(File.pathSeparator);
+	
 	private static final Hashtable<String, InstrumentInfo> candidateClassesPool = ClassLoaderHelper
 			.getInstrumentCandidates();
 
@@ -70,11 +69,11 @@ public class CustomClassLoader extends ClassLoader {
 		// System.out.println("Classpath: " + s);
 		// }
 
-		String slashName = name.replace(".", "\\");
+		String slashName = name.replace(".", File.separator);
 		// for (String s : classpath) {
 		// String fullQualifiedName = s + "\\" + slashName + ".class";
 		// Need NOT Full Path
-		String fullQualifiedName = "\\" + slashName + ".class";
+		String fullQualifiedName = File.separator + slashName + ".class";
 
 		try {
 			InputStream is = getResourceAsStream(fullQualifiedName);
@@ -89,7 +88,7 @@ public class CustomClassLoader extends ClassLoader {
 				is.close();
 				byte[] classData = buffer.toByteArray();
 
-				// Check if the class need to be instrumentated.
+				// Check if the class need to be instrumented, if so, do the instrumentation.
 				InstrumentInfo instrumentInfo = candidateClassesPool.get(name);
 				if (instrumentInfo != null) {
 					System.out.println("Need Instrumation: " + name);
