@@ -12,27 +12,31 @@ public class ClassLoaderHelper {
 
 	private static Properties prop;
 	private static Instrumentor instru;
-	
-	public static void instrument(String className, byte[] classData) {
-		if(prop==null){
+
+	public static byte[] instrument(String className, byte[] classData) {
+		if (prop == null) {
 			getInstrumentationSettings();
 		}
-		if(instru==null){
+		if (instru == null) {
 			generateInstrumentor();
 		}
-		if(instru!=null){
-		instru.instrument(className, classData);
-		}else{
-			System.err.println("Fail to initiate Instrumentor instance, program shall run without instrumenting");
+		if (instru != null) {
+			classData=instru.instrument(className, classData);
+		} else {
+			System.err
+					.println("Fail to initiate Instrumentor instance, program shall run without instrumenting");
 		}
+		return classData;
 	}
 
 	private static void generateInstrumentor() {
-		String instumentorClass=prop.getProperty("instumentorClass");
+		String instumentorClass = prop.getProperty("instumentorClass");
 		try {
-			Class<Instrumentor> clazz=(Class<Instrumentor>) Class.forName(instumentorClass);
-			Constructor<Instrumentor> con=clazz.getConstructor(Properties.class);
-			instru=con.newInstance(prop);
+			Class<Instrumentor> clazz = (Class<Instrumentor>) Class
+					.forName(instumentorClass);
+			Constructor<Instrumentor> con = clazz
+					.getConstructor(Properties.class);
+			instru = con.newInstance(prop);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -52,7 +56,7 @@ public class ClassLoaderHelper {
 
 	private static void getInstrumentationSettings() {
 		try {
-			
+
 			prop = new Properties();
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();
 			InputStream stream = loader

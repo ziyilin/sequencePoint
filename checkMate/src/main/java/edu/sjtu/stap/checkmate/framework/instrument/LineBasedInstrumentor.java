@@ -43,7 +43,7 @@ public class LineBasedInstrumentor extends Instrumentor {
 	}
 
 	@Override
-	protected void doInstrument(byte[] classData) {
+	protected byte[] doInstrument(byte[] classData) {
 
 		ClassReader cr = new ClassReader(classData);
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -58,6 +58,7 @@ public class LineBasedInstrumentor extends Instrumentor {
 			System.err.println("Fail to instrument, caused by:");
 			e.printStackTrace();
 		}
+		return classData;
 	}
 
 	private void generateTestData() {

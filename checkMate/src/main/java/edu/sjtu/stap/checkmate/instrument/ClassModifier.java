@@ -1,6 +1,5 @@
 package edu.sjtu.stap.checkmate.instrument;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,7 @@ public abstract class ClassModifier {
 	 * Instrument one class and store the manipulated output to <code>OUPUT_BASE</code> directory. 
 	 * @throws IOException
 	 */
-	public void modifyClass() throws IOException {
+	public void modifyClass2File() throws IOException {
 		Map<String, Object> properties = specificConfig();
 		ModifyDriver.modify2File(properties, mvfactory);
 	}
@@ -29,7 +28,7 @@ public abstract class ClassModifier {
 	 * @return
 	 * @throws IOException
 	 */
-	public byte[] mofigyClass() throws IOException{
+	public byte[] modifyClass() throws IOException{
 		Map<String, Object> properties = specificConfig();
 		return ModifyDriver.doModify(properties, mvfactory);
 	}

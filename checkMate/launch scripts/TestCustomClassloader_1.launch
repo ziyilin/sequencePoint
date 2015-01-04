@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/checkMate/test/edu/sjtu/stap/checkmate/loadclass/test/Demo.java"/>
+<listEntry value="/checkMate/src/test/java/edu/sjtu/stap/checkmate/loadclass/test/Demo.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -10,5 +10,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.sjtu.stap.checkmate.loadclass.test.Demo"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="checkMate"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.system.class.loader=edu.sjtu.stap.checkmate.loadclass.CustomClassLoader"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.system.class.loader=edu.sjtu.stap.checkmate.framework.loading.CustomClassLoader"/>
 </launchConfiguration>

@@ -1,5 +1,10 @@
 package edu.sjtu.stap.checkmate.control;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+
 import edu.sjtu.stap.checkmate.AddLinesToTraceProgram;
 import edu.sjtu.stap.checkmate.AnnotationRegisterCenter;
 import edu.sjtu.stap.checkmate.ConditionAnnotation;
@@ -115,6 +120,18 @@ public class Controller {
 		}
 		program += "}}";
 		return program;
+	}
+	
+	public static void printoutTraceProgram(){
+		String code=Controller.createTraceProgram();
+    	try {
+    		System.out.println("Saving trace program");
+			FileUtils.writeStringToFile(new File("traceprogram.txt"), code);
+			System.out.println("Trace program saved");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static boolean checkExists(String token) {

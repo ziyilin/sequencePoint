@@ -25,12 +25,18 @@ public abstract class Instrumentor {
 	}
 	
 	abstract protected boolean needInstru(String className);
-	abstract protected void doInstrument(byte[] classData);
+	abstract protected byte[] doInstrument(byte[] classData);
+	
+	/**
+	 * Initiate data read load from properties file. 
+	 */
 	abstract protected void initiateData();
 	
-	public void instrument(String className, byte[] classData){
+	public byte[] instrument(String className, byte[] classData){
 		if(needInstru(className)){
-			doInstrument(classData);
+			return doInstrument(classData);
+		}else{
+			return classData;
 		}
 	}
 	

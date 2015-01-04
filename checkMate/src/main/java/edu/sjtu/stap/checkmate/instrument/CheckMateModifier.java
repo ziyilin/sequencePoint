@@ -3,6 +3,7 @@ package edu.sjtu.stap.checkmate.instrument;
 import java.util.List;
 import java.util.Map;
 
+import edu.illinois.jacontebe.asm.Constants;
 import edu.illinois.jacontebe.asm.MethodInfor;
 
 public class CheckMateModifier extends ClassModifier {
@@ -16,7 +17,14 @@ public class CheckMateModifier extends ClassModifier {
 	
 	@Override
 	protected Map<String, Object> specificConfig() {
-		return basicConfig(qualifiedClassName);
+		Map<String, Object> config = basicConfig(qualifiedClassName);
+		config.put(Constants.MIX_MODE, true);
+		//main method applies a different rule from other methods.
+		config.put(Constants.METHOD_NAME, "main");
+		config.put(Constants.METHOD_DESC, "([Ljava/lang/String;)V");
+		config.put(Constants.OUTPUT_DIRECTORY, ".");
+		config.put(Constants.OUTPUT_FILENAME, qualifiedClassName+".class");
+		return config;
 	}
 
 	@Override
@@ -27,7 +35,7 @@ public class CheckMateModifier extends ClassModifier {
 
 	@Override
 	protected void initMvFactory() {
-		// TODO Auto-generated method stub
+		mvfactory=new CheckmateMVFactory();
 		
 	}
 

@@ -14,18 +14,23 @@ public class CheckMateInstrumentor extends Instrumentor {
 	@Override
 	protected boolean needInstru(String className) {
 		currentClass=className;
+		if(currentClass.startsWith("edu.sjtu.stap.checkmate")){
+			return false;
+		}
 		return true;
 	}
 
 	@Override
-	protected void doInstrument(byte[] classData) {
+	protected byte[] doInstrument(byte[] classData) {
 		CheckMateModifier modifier=new CheckMateModifier(currentClass);
 		try {
-			classData=modifier.mofigyClass();
+			classData=modifier.modifyClass();
+		//	modifier.modifyClass2File();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Fail to instrument, program shall run with original codes");
 		}
+		return classData;
 	}
 
 	@Override

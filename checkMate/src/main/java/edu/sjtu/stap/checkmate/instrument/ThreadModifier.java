@@ -24,7 +24,7 @@ public class ThreadModifier extends ClassModifier{
 	
 	public static void main(String[] args) throws IOException {
 		ThreadModifier modifier=new ThreadModifier();
-		modifier.modifyClass();
+		modifier.modifyClass2File();
 	}
 
 	/**
