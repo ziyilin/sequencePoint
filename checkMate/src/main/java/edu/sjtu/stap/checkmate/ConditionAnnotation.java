@@ -6,10 +6,10 @@ public abstract class ConditionAnnotation {
 	protected int condId;
 	protected boolean curVal;
 	
-	public ConditionAnnotation(Object o1) {
-		o=o1;
+	public ConditionAnnotation(Object obj) {
+		o=obj;
 		condId=counter++;
-		associateWithObject(o1);
+		associateWithObject(obj);
 		initCond();
 	}
 	
@@ -49,7 +49,9 @@ public abstract class ConditionAnnotation {
 		}
 	}
 	
-	private void associateWithObject(Object o){
+	private void associateWithObject(Object obj){
+		String className=obj.getClass().getName();
+		
 		AnnotationRegisterCenter.getInstance().register(this);
 	}
 	
@@ -62,7 +64,7 @@ public abstract class ConditionAnnotation {
 		AddLinesToTraceProgram.getInstance().addLine("}");
 	}
 
-	public boolean matchAssociated(Object o2) {
-		return o2.equals(o);
+	public boolean matchAssociated(Object obj) {
+		return obj.equals(o);
 	}
 }
