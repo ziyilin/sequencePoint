@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.illinois.jacontebe.asm.Constants;
-import edu.illinois.jacontebe.asm.MethodInfor;
-import edu.illinois.jacontebe.asm.ModifyDriver;
-import edu.illinois.jacontebe.asm.MvFactory;
+import edu.sjtu.stap.checkmate.framework.instrument.Constants;
+import edu.sjtu.stap.checkmate.framework.instrument.MethodInfor;
+import edu.sjtu.stap.checkmate.framework.instrument.ModifyDriver;
+import edu.sjtu.stap.checkmate.framework.instrument.MvFactory;
 
 public abstract class ClassModifier {
 	

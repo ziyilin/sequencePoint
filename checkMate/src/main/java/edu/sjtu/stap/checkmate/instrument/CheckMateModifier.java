@@ -3,8 +3,8 @@ package edu.sjtu.stap.checkmate.instrument;
 import java.util.List;
 import java.util.Map;
 
-import edu.illinois.jacontebe.asm.Constants;
-import edu.illinois.jacontebe.asm.MethodInfor;
+import edu.sjtu.stap.checkmate.framework.instrument.Constants;
+import edu.sjtu.stap.checkmate.framework.instrument.MethodInfor;
 
 public class CheckMateModifier extends ClassModifier {
 

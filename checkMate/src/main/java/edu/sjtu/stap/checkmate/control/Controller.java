@@ -5,10 +5,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import edu.sjtu.stap.checkmate.AddLinesToTraceProgram;
-import edu.sjtu.stap.checkmate.AnnotationRegisterCenter;
-import edu.sjtu.stap.checkmate.ConditionAnnotation;
-
 public class Controller {
 
 	public static void acquireLock(Object lock) {

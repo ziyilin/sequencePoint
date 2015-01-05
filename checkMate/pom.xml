@@ -33,10 +33,5 @@
 			<artifactId>chord</artifactId>
 			<version>2.1</version>
 		</dependency>
-		<dependency>
-			<groupId>edu.illinois.jacontebe</groupId>
-			<artifactId>jacontebe</artifactId>
-			<version>1.0.1</version>
-		</dependency>
 	</dependencies>
 </project>

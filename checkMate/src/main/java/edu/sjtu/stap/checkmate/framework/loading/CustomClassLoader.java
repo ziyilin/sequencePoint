@@ -19,7 +19,7 @@ public class CustomClassLoader extends ClassLoader {
 	@Override
 	public synchronized Class<?> loadClass(String name)
 			throws ClassNotFoundException {
-		//System.out.println("Try to load class: " + name);
+		System.out.println("Try to load class: " + name);
 		// First, check if the class has already been loaded
 		Class<?> clazz = findLoadedClass(name);
 

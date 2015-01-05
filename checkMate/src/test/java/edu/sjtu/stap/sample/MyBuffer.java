@@ -3,7 +3,7 @@ package edu.sjtu.stap.sample;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.sjtu.stap.checkmate.ConditionAnnotation;
+import edu.sjtu.stap.checkmate.control.ConditionAnnotation;
 
 /**
  * This class is defined as an example in the paper at FSE'10

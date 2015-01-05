@@ -3,8 +3,8 @@ package edu.sjtu.stap.checkmate.instrument;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import edu.illinois.jacontebe.asm.GeneralMV;
-import edu.illinois.jacontebe.asm.MethodInfor;
+import edu.sjtu.stap.checkmate.framework.instrument.GeneralMV;
+import edu.sjtu.stap.checkmate.framework.instrument.MethodInfor;
 
 public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 

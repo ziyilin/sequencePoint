@@ -3,8 +3,8 @@ package edu.sjtu.stap.squencepoint.instrumentation;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import edu.illinois.jacontebe.asm.CodeTemplate;
-import edu.illinois.jacontebe.asm.MvFactory;
+import edu.sjtu.stap.checkmate.framework.instrument.CodeTemplate;
+import edu.sjtu.stap.checkmate.framework.instrument.MvFactory;
 import edu.sjtu.stap.checkmate.instrument.CustomizedMethodVisitor;
 
 public class LineBasedMVFactory implements MvFactory {
