@@ -49,30 +49,11 @@ public class ModifyDriver {
 			MvFactory mvFactory) throws IOException {
 		String className = (String) properties
 				.get(Constants.QUALIFIED_CLASS_NAME);
-		List<MethodInfor> methodInforList = (List<MethodInfor>) properties
-				.get(Constants.METHOD_INFOR_LIST);
-		// User can put method name and description directly into property
-		// instead of using List<MethodInfor> when there is only one method
-		// need to transform.
-		// On the other hand, when method name, description and
-		// List<MethodInfor> are all null,
-		// we will instrument all methods.
-		if (methodInforList == null) {
-			String methodName = (String) properties.get(Constants.METHOD_NAME);
-			String methodDesc = (String) properties.get(Constants.METHOD_DESC);
-			if (methodName != null || methodDesc != null) {
-				MethodInfor mi = new MethodInfor(methodName, methodDesc);
-				methodInforList = new ArrayList<MethodInfor>();
-				methodInforList.add(mi);
-			}
-		}
-		boolean mix = properties.get(Constants.MIX_MODE) == null ? false
-				: (Boolean) properties.get(Constants.MIX_MODE);
+		
 		System.out.println("Instrumenting class " + className + "...");
 		ClassReader cr = new ClassReader(className);
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		ClassVisitor cv = new TransformMethodAdapter(cw, methodInforList,
-				mvFactory, mix);
+		ClassVisitor cv = new TransformMethodAdapter(cw,mvFactory, properties);
 		cr.accept(cv, 0);
 		System.out.println("Instrumenting completed.");
 		return cw.toByteArray();

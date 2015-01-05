@@ -1,6 +1,6 @@
 package edu.sjtu.stap.checkmate.framework.instrument;
 
-import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -17,9 +17,12 @@ public class GeneralMV extends MethodVisitor {
 
 	private boolean synchMethod;
 	private boolean staticMethod;
-	//methods need to deal with specific rules.
-	private List<MethodInfor> specialMethods;
+	private Map<String, Object> params;
 	
+	public Map<String, Object> getParams() {
+		return params;
+	}
+
 	public GeneralMV(int arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
@@ -42,11 +45,9 @@ public class GeneralMV extends MethodVisitor {
 		return staticMethod;
 	}
 
-	public List<MethodInfor> getSpecialMethods() {
-		return specialMethods;
+	public void setParams(Map<String, Object> params) {
+		this.params = params;
 	}
 
-	public void setSpecialMethods(List<MethodInfor> specialMethods) {
-		this.specialMethods = specialMethods;
-	}
+	
 }

@@ -4,8 +4,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import edu.sjtu.stap.checkmate.framework.instrument.CodeTemplate;
+import edu.sjtu.stap.checkmate.framework.instrument.CustomizedMethodVisitor;
 import edu.sjtu.stap.checkmate.framework.instrument.MvFactory;
-import edu.sjtu.stap.checkmate.instrument.CustomizedMethodVisitor;
 
 public class LineBasedMVFactory implements MvFactory {
 

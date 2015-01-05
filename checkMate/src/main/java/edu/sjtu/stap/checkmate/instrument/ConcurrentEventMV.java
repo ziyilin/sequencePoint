@@ -1,8 +1,11 @@
 package edu.sjtu.stap.checkmate.instrument;
 
+import java.util.List;
+
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import edu.sjtu.stap.checkmate.framework.instrument.Constants;
 import edu.sjtu.stap.checkmate.framework.instrument.GeneralMV;
 import edu.sjtu.stap.checkmate.framework.instrument.MethodInfor;
 
@@ -50,22 +53,31 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 			mv.visitMethodInsn(INVOKESTATIC,
 					"edu/sjtu/stap/checkmate/control/Controller",
 					"releaseLock", "()V", false);
-			mv.visitInsn(opcode);
-			return;
+			break;
 		case RETURN:
-			for (MethodInfor m : getSpecialMethods()) {
-				if (m.getMethodName().equals(methodName)
-						&& m.getMethodDescription().equals(methodDesc)) {
-					mv.visitMethodInsn(INVOKESTATIC,
-							"edu/sjtu/stap/checkmate/control/Controller",
-							"printoutTraceProgram", "()V", false);
-					break;
-				}
+			//print out trace program at then end of original program.
+			if (methodName.equals("main")
+					&& methodDesc.equals("([Ljava/lang/String;)V")) {
+				mv.visitMethodInsn(INVOKESTATIC,
+						"edu/sjtu/stap/checkmate/control/Controller",
+						"printoutTraceProgram", "()V", false);
 			}
-			mv.visitInsn(opcode);
-			return;
 		}
 		mv.visitInsn(opcode);
+	}
+
+	public void visitFieldInsn(int opcode, String owner, String name,
+			String desc) {
+		mv.visitFieldInsn(opcode, owner, name, desc);
+		List<String> classList = (List<String>) getParams().get(
+				Constants.ASSOC_CLASSES);
+		
+		if (classList!=null&& classList.contains(owner.replace("/", ".")) && opcode == PUTFIELD) {
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitMethodInsn(INVOKESTATIC,
+					"edu/sjtu/stap/checkmate/control/Controller",
+					"writeOrCall", "(Ljava/lang/Object;)V", false);
+		}
 	}
 
 	public void visitVarInsn(int opcode, int var) {
@@ -87,17 +99,17 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 		if (objectChecked && name.equals("wait")) {
 			// Insert before wait() is called.
 			insertCode(opc, owner, name, desc, itf, "wait");
-		}else if (objectChecked && name.equals("notify")) {
+		} else if (objectChecked && name.equals("notify")) {
 			insertCode(opc, owner, name, desc, itf, "notify");
-		}else if (objectChecked && name.equals("notifyAll")) {
+		} else if (objectChecked && name.equals("notifyAll")) {
 			insertCode(opc, owner, name, desc, itf, "notifyAll");
-		}else if (threadChecked && name.equals("start")) {
+		} else if (threadChecked && name.equals("start")) {
 			mv.visitMethodInsn(INVOKESTATIC,
 					"edu/sjtu/stap/checkmate/control/Controller", "start",
 					"(Ljava/lang/Thread;)V", false);
 			mv.visitVarInsn(ALOAD, lastLoadVar);
-			
-		}else if (threadChecked && name.equals("join")) {
+
+		} else if (threadChecked && name.equals("join")) {
 			mv.visitMethodInsn(INVOKESTATIC,
 					"edu/sjtu/stap/checkmate/control/Controller", "join",
 					"(Ljava/lang/Thread;)V", false);
@@ -112,6 +124,6 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 				"edu/sjtu/stap/checkmate/control/Controller", methodName,
 				"(Ljava/lang/Object;)V", false);
 		mv.visitVarInsn(ALOAD, lastLoadVar);
-		
+
 	}
 }

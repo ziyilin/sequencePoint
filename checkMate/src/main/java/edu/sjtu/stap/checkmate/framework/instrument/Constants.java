@@ -14,7 +14,8 @@ public class Constants {
     public static final String OUTPUT_FILENAME = "outputF";
     public static final String SLEEP_TIME = "st";
     public static final String CLASS_LIST = "classList";
-    public static final String METHOD_INFOR_LIST = "methodInforList";
+    public static final String SPECIAL_METHODS = "methodInforList";
     public static final String MIX_MODE="mix";
+    public static final String ASSOC_CLASSES="associatedClasses";
 
 }
