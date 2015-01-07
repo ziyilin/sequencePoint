@@ -25,7 +25,7 @@ public class CheckMateModifier extends ClassModifier {
 		//main method applies a different rule from other methods.
 		config.put(Constants.METHOD_NAME, "main");
 		config.put(Constants.METHOD_DESC, "([Ljava/lang/String;)V");
-		config.put(Constants.OUTPUT_DIRECTORY, ".");
+		config.put(Constants.OUTPUT_DIRECTORY, "");
 		config.put(Constants.OUTPUT_FILENAME, qualifiedClassName+".class");
 		config.put(Constants.ASSOC_CLASSES, assoicatedClasses);
 		return config;

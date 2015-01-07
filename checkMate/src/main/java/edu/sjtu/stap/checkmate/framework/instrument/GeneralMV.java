@@ -33,8 +33,8 @@ public class GeneralMV extends MethodVisitor {
 	}
 
 	public void checkMethodModifier(int access) {
-		synchMethod = (access & Opcodes.ACC_SYNCHRONIZED) == 1;
-		staticMethod = (access & Opcodes.ACC_STATIC) == 1;
+		synchMethod = (access & Opcodes.ACC_SYNCHRONIZED) == 32;
+		staticMethod = (access & Opcodes.ACC_STATIC) == 8;
 	}
 
 	public boolean isSynchMethod() {

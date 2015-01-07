@@ -69,12 +69,21 @@ public class Controller {
 	}
 
 	public static void writeOrCall(Object o) {
-		ConditionAnnotation associatedCondition = AnnotationRegisterCenter
-				.getInstance().findMatchAssociats(o);
-		if (associatedCondition != null) {
-			associatedCondition.logChange();
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		boolean skip=false;
+		for(StackTraceElement s:stackTrace){
+			if(s.getMethodName().equals("isConditionTrue") ){
+				skip=true;
+				break;
+			}
 		}
-
+		if(!skip){
+			ConditionAnnotation associatedCondition = AnnotationRegisterCenter
+					.getInstance().findMatchAssociats(o);
+			if (associatedCondition != null) {
+				associatedCondition.logChange();
+			}
+		}
 	}
 
 	private static void write2Map(String contents) {
@@ -122,7 +131,7 @@ public class Controller {
 		String code=Controller.createTraceProgram();
     	try {
     		System.out.println("Saving trace program");
-			FileUtils.writeStringToFile(new File("traceprogram.txt"), code);
+			FileUtils.writeStringToFile(new File("traceprogram.java"), code);
 			System.out.println("Trace program saved");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

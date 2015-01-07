@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.sjtu.stap.checkmate.control.ConditionAnnotation;
+import edu.sjtu.stap.checkmate.control.Controller;
 
 /**
  * This class is defined as an example in the paper at FSE'10
@@ -22,6 +23,7 @@ public class MyBuffer {
 	
 	public MyBuffer(int max){
 		maxsize=max;
+		Controller.writeOrCall(this);
 	}
 	
 	public synchronized void put(Object elem){
@@ -48,10 +50,6 @@ public class MyBuffer {
 		//Controller.notify(this);
 		notify();
 		//Controller.releaseLock();
-	}
-	
-	public static synchronized void a(){
-		
 	}
 	
 	public Object get(){
