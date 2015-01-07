@@ -105,10 +105,12 @@ public class Controller {
 		for (int i : AddLinesToTraceProgram.getInstance().getPredictates()) {
 			program += "static boolean c" + i + ";\n";
 		}
+		SynchOptimizer.optimize();
 		for (long t : AddLinesToTraceProgram.getInstance().getThrToLines()
 				.keySet()) {
 			program += "static Thread t" + t
 					+ "=new Thread()\n{ public void run(){";
+			
 			for (String s : AddLinesToTraceProgram.getInstance()
 					.getThrToLines().get(t)) {
 				program += s + "\n";
@@ -127,6 +129,8 @@ public class Controller {
 		return program;
 	}
 	
+	
+
 	public static void printoutTraceProgram(){
 		String code=Controller.createTraceProgram();
     	try {
