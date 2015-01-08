@@ -31,7 +31,6 @@ public class CheckMateInstrumentor extends Instrumentor {
 		CheckMateModifier modifier=new CheckMateModifier(currentClass,assoicatedClasses);
 		try {
 			classData=modifier.modifyClass();
-			modifier.modifyClass2File();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Fail to instrument, program shall run with original codes");

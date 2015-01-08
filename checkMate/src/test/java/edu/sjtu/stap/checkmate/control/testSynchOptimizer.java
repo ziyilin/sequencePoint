@@ -28,12 +28,12 @@ public class testSynchOptimizer {
 	public void testOptimize() {
 		SynchOptimizer.optimize();
 		List<String> result=AddLinesToTraceProgram.getInstance().getThrToLines().get(0L);
-		assertEquals(result.size(),5);
-		assertEquals(result.get(0),"synchronized(l1){");
-		assertEquals(result.get(1),"synchronized(l1){");
-		assertEquals(result.get(2),"l1.wait()");
-		assertEquals(result.get(3),"}");
-		assertEquals(result.get(4),"}");
+		assertEquals(5,result.size());
+		assertEquals("synchronized(l1){",result.get(0));
+		assertEquals("synchronized(l1){",result.get(1));
+		assertEquals("l1.wait();\n",result.get(2));
+		assertEquals("}\n",result.get(3));
+		assertEquals("}\n",result.get(4));
 	}
 
 }

@@ -20,7 +20,9 @@ public abstract class ConditionAnnotation {
 		boolean val=isConditionTrue();
 		AddLinesToTraceProgram.getInstance().addLineWithConditionId("if(c"+condId+"){",condId);
 		if(!val){
-			AddLinesToTraceProgram.getInstance().addLineWithLockId("synchronized(l"+lockId+"){l"+lockId+".notify();}",lockId);
+			AddLinesToTraceProgram.getInstance().addLineWithLockId("synchronized(l"+lockId+"){",lockId);
+			AddLinesToTraceProgram.getInstance().addLineWithLockId("l"+lockId+".notify();\n",lockId);
+			ending();
 		}
 	}
 	
@@ -33,7 +35,9 @@ public abstract class ConditionAnnotation {
 		boolean val=isConditionTrue();
 		AddLinesToTraceProgram.getInstance().addLineWithConditionId("if(c"+condId+"){",condId);
 		if(!val){
-			AddLinesToTraceProgram.getInstance().addLineWithLockId("synchronized(l"+lockId+"){l"+lockId+".wait();}",lockId);
+			AddLinesToTraceProgram.getInstance().addLineWithLockId("synchronized(l"+lockId+"){",lockId);
+			AddLinesToTraceProgram.getInstance().addLineWithLockId("l"+lockId+".wait();\n",lockId);
+			ending();
 		}
 	}
 	
@@ -50,7 +54,6 @@ public abstract class ConditionAnnotation {
 	}
 	
 	private void associateWithObject(Object obj){
-		String className=obj.getClass().getName();
 		
 		AnnotationRegisterCenter.getInstance().register(this);
 	}
@@ -61,7 +64,7 @@ public abstract class ConditionAnnotation {
 	}
 	
 	private void ending() {
-		AddLinesToTraceProgram.getInstance().addLine("}");
+		AddLinesToTraceProgram.getInstance().addLine("}\n");
 	}
 
 	public boolean matchAssociated(Object obj) {
