@@ -34,10 +34,17 @@ public class SynchOptimizer {
 			List<Integer> optimizeCandidates=new ArrayList<Integer>();
 			for (int i = 0; i < codesOfAThread.size(); i++) {
 				String str=codesOfAThread.get(i);
+				//Keep not empty synchronized sections
 				if(!str.startsWith("synchronized") && !str.startsWith("}") && !str.trim().equals("")){
 					stack.clear();
-				}else if (str.startsWith("synchronized")){
-					stack.push(i);
+				}
+				else if (str.startsWith("synchronized")){
+					//if two nested synchronized sections monitor on different objects, keep both.  
+					if(!stack.empty()&&!str.equals(codesOfAThread.get(stack.peek()))){
+						stack.clear();
+					}else{
+						stack.push(i);
+					}
 				}else if (str.startsWith("}") && !stack.isEmpty()){
 					optimizeCandidates.add(stack.pop());
 					optimizeCandidates.add(i);
