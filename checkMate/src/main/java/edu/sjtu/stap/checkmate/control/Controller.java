@@ -24,28 +24,28 @@ public class Controller {
 	}
 
 	public static void wait(int thread, int monitor) {
-		write2Map("l" + monitor + ".wait();\n", thread);
+		write2Map("try{l" + monitor + ".wait();\n}catch(InterruptedException e){e.printStackTrace();}", thread);
 	}
 
 	public static void wait(Object lock) {
-		write2Map("l" + lock.hashCode() + ".wait();\n");
+		write2Map("try{l" + lock.hashCode() + ".wait();\n}catch(InterruptedException e){e.printStackTrace();}");
 	}
 
 	public static void notify(Object lock) {
-		write2Map("l" + lock.hashCode() + ".notify();\n");
+		write2Map("l" + lock.hashCode() + ".notify();");
 	}
 
 	public static void notify(int thread, int monitor) {
-		write2Map("l" + monitor + ".notify();\n", thread);
+		write2Map("l" + monitor + ".notify();", thread);
 
 	}
 
 	public static void notifyAll(Object lock) {
-		write2Map("l" + lock.hashCode() + ".notifyAll();\n");
+		write2Map("l" + lock.hashCode() + ".notifyAll();");
 	}
 
 	public static void notifyAll(int thread, int monitor) {
-		write2Map("l" + monitor + ".notifyAll();\n", thread);
+		write2Map("l" + monitor + ".notifyAll();", thread);
 	}
 
 	public static void start(Thread t) {
@@ -60,12 +60,12 @@ public class Controller {
 	}
 
 	public static void join(Thread t) {
-		write2Map("t" + t.getId() + ".join();\n", Thread.currentThread()
+		write2Map("try{t" + t.getId() + ".join();\n}catch(InterruptedException e){e.printStackTrace();}", Thread.currentThread()
 				.getId());
 	}
 	
 	public static void join(int thread, int subjectThread) {
-		write2Map("t" + subjectThread + ".join();\n", thread);
+		write2Map("try{t" + subjectThread + ".join();\n}catch(InterruptedException e){e.printStackTrace();}", thread);
 	}
 
 	public static void writeOrCall(Object o) {
@@ -78,11 +78,9 @@ public class Controller {
 			}
 		}
 		if(!skip){
-			ConditionAnnotation associatedCondition = AnnotationRegisterCenter
+			 AnnotationRegisterCenter
 					.getInstance().findMatchAssociats(o);
-			if (associatedCondition != null) {
-				associatedCondition.logChange();
-			}
+			
 		}
 	}
 
@@ -135,7 +133,7 @@ public class Controller {
 		String code=Controller.createTraceProgram();
     	try {
     		System.out.println("Saving trace program");
-			FileUtils.writeStringToFile(new File("traceprogram.java"), code);
+			FileUtils.writeStringToFile(new File("TraceProgram.java"), code);
 			System.out.println("Trace program saved");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
