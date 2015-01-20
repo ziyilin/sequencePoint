@@ -1,27 +1,27 @@
 package edu.sjtu.stap.checkmate.control;
 
 public abstract class ConditionAnnotation {
-	protected static int counter=0;
+	//protected static int counter=0;
 	protected Object o;
 	protected int condId;
 	protected boolean curVal;
 	
 	public ConditionAnnotation(Object obj) {
 		o=obj;
-		condId=counter++;
+		condId=this.hashCode();
 		associateWithObject(obj);
 		initCond();
 	}
 	
 	public abstract boolean isConditionTrue();
 	
-	public void notifyBegin(Object lock){
+	public void  notifyBegin(Object lock){
 		int lockId= AddLinesToTraceProgram.getInstance().getUniqueObjId(lock);
 		boolean val=isConditionTrue();
 		AddLinesToTraceProgram.getInstance().addLineWithConditionId("if(c"+condId+"){",condId);
 		if(!val){
 			AddLinesToTraceProgram.getInstance().addLineWithLockId("synchronized(l"+lockId+"){",lockId);
-			AddLinesToTraceProgram.getInstance().addLineWithLockId("l"+lockId+".notify();\n",lockId);
+			AddLinesToTraceProgram.getInstance().addLineWithLockId("l"+lockId+".notify();",lockId);
 			ending();
 		}
 	}
@@ -36,7 +36,7 @@ public abstract class ConditionAnnotation {
 		AddLinesToTraceProgram.getInstance().addLineWithConditionId("if(c"+condId+"){",condId);
 		if(!val){
 			AddLinesToTraceProgram.getInstance().addLineWithLockId("synchronized(l"+lockId+"){",lockId);
-			AddLinesToTraceProgram.getInstance().addLineWithLockId("l"+lockId+".wait();\n",lockId);
+			AddLinesToTraceProgram.getInstance().addLineWithLockId("try{l"+lockId+".wait();\n}catch(InterruptedException e){e.printStackTrace();}",lockId);
 			ending();
 		}
 	}
