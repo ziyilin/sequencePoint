@@ -8,8 +8,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
-
 /**
  * This class adds code into a specified method.
  * 
