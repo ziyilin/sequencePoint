@@ -1,12 +1,12 @@
 package edu.sjtu.stap.checkmate.control;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import chord.util.ArraySet;
 
 public class AddLinesToTraceProgram {
 
@@ -24,8 +24,8 @@ public class AddLinesToTraceProgram {
 	}
 	
 	private AddLinesToTraceProgram(){
-		predictates=new ArraySet<Integer>();
-		locks=new ArraySet<Integer>();
+		predictates=new HashSet<Integer>();
+		locks=new HashSet<Integer>();
 	}
 	
 	private Map<Long, List<String>> thrToLines =new TreeMap<Long,List<String>>();
