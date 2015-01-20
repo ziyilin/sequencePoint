@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.sjtu.stap.checkmate.control.ConditionAnnotation;
-import edu.sjtu.stap.checkmate.control.Controller;
 
 /**
  * This class is defined as an example in the paper at FSE'10
@@ -20,10 +19,15 @@ public class MyBuffer {
 			return ((MyBuffer)o).isFull();
 		}
 	};
+	private ConditionAnnotation condition2=new ConditionAnnotation(this){
+		public boolean isConditionTrue(){
+			return ((MyBuffer)o).isEmpty();
+		}
+	};
 	
 	public MyBuffer(int max){
 		maxsize=max;
-		Controller.writeOrCall(this);
+		//Controller.writeOrCall(this);
 	}
 	
 	public synchronized void put(Object elem){
@@ -56,6 +60,7 @@ public class MyBuffer {
 		Object elem;
 		synchronized(this){
 			//Controller.acquireLock(this);
+			condition2.waitBegin(this);
 			while(isEmpty()){
 				try {
 				//	Controller.wait(this);
@@ -65,6 +70,7 @@ public class MyBuffer {
 					e.printStackTrace();
 				}
 			}
+			condition2.waitEnd();
 			elem=buf.remove(0);
 			//Controller.releaseLock();
 		}
