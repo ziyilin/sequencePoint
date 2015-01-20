@@ -35,12 +35,12 @@ public class AnnotationRegisterCenter {
 		return annotations;
 	}
 
-	public ConditionAnnotation findMatchAssociats(Object o) {
+	public void findMatchAssociats(Object o) {
 		for(ConditionAnnotation c:annotations){
 			if(c.matchAssociated(o)){
-				return c;
+				c.logChange();
 			}
 		}
-		return null;
+		//return null;
 	}
 }
