@@ -19,6 +19,8 @@ local.properties
 .classpath
 .settings/
 .loadpath
+.checkstyle
+SampleResult/
 
 # External tool builders
 .externalToolBuilders/

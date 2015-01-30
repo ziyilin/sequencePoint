@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html><head>
+
+
+
+
+<meta charset="UTF-8"><title>log4j bug 38137</title></head><body>
+    
+
+        <h1><b>Bug 38137</b></h1>
+        <h2><b>Bug Description:</b></h2>
+<p> This is a wait-notify deadlock bug caused by improper use of wait() and notify() in a consumer and producer pattern.
+The following thread dump shows how the deadlock happens: all threads, including consumer,"Dispatcher-Thread-0", and producers, "Thread-*" are in waiting state:
+    <pre>"Thread-3" prio=6 tid=0x000000000d362000 nid=0x25c0 in Object.wait() [0x00000000<br>0e01f000]<br>   java.lang.Thread.State: WAITING (on object monitor)<br>        at java.lang.Object.wait(Native Method)<br>        - waiting on &lt;0x00000007d5e3bf88&gt; (a org.apache.log4j.helpers.BoundedFIFO)<br>        at java.lang.Object.wait(Object.java:503)<br>        at org.apache.log4j.AsyncAppender.append(AsyncAppender.java:104)<br>        - locked &lt;0x00000007d5e3bf88&gt; (a org.apache.log4j.helpers.BoundedFIFO)<br>        at org.apache.log4j.Test38137$AppendThread.run(Test38137.java:62)<br><br>"Thread-1" prio=6 tid=0x000000000d35a800 nid=0x148c in Object.wait() [0x00000000<br>0de1f000]<br>   java.lang.Thread.State: WAITING (on object monitor)<br>        at java.lang.Object.wait(Native Method)<br>        - waiting on &lt;0x00000007d5e3bf88&gt; (a org.apache.log4j.helpers.BoundedFIFO)<br>        at java.lang.Object.wait(Object.java:503)<br>        at org.apache.log4j.AsyncAppender.append(AsyncAppender.java:104)<br>        - locked &lt;0x00000007d5e3bf88&gt; (a org.apache.log4j.helpers.BoundedFIFO)<br>        at org.apache.log4j.Test38137$AppendThread.run(Test38137.java:62)<br><br>"Dispatcher-Thread-0" daemon prio=2 tid=0x000000000d359800 nid=0x1f94 in Object.<br>wait() [0x000000000dd1f000]<br>   java.lang.Thread.State: WAITING (on object monitor)<br>        at java.lang.Object.wait(Native Method)<br>        - waiting on &lt;0x00000007d5e3bf88&gt; (a org.apache.log4j.helpers.BoundedFIFO)<br>        at java.lang.Object.wait(Object.java:503)<br>        at org.apache.log4j.Dispatcher.run(AsyncAppender.java:312)<br>        - locked &lt;0x00000007d5e3bf88&gt; (a org.apache.log4j.helpers.BoundedFIFO)</pre>
+    
+    
+    More details about this bug are at <a href="https://issues.apache.org/bugzilla/show_bug.cgi?id=38137">LOG4J-38137</a>
+        JIRA page.
+    </p>
+    
+
+
+
+
+    </p>
+    <h2><b>Interleaving Description:</b></h2>
+    <pre>
+org.apache.log4j.AsyncAppender:
+
+t1  t2      public void append(LoggingEvent event) {
+                ...
+                synchronized(bf) {
+                    while(bf.isFull()) {
+                        try {
+                            //LogLog.debug("Waiting for free space in buffer, "+bf.length());
+1   2                      bf.wait();
+                        } catch(InterruptedException e) {
+                            ...
+                        }
+                    }
+                ...
+                }
+                //cat.debug("About to put new event in buffer.");
+8               bf.put(event);
+                if(bf.wasEmpty()) {
+                    //cat.debug("Notifying dispatcher to process events.");
+                    bf.notify();
+                }
+                ...
+            }
+            
+org.apache.log4j.AsyncAppender$Dispatcher  
+         
+t3          public void run() {
+                ...
+                while(true) {
+                    synchronized(bf) {
+                        if(bf.length() == 0) {
+                        // Exit loop if interrupted but only if the the buffer is empty.
+                            if(interrupted) {
+                            //cat.info("Exiting.");
+                                break;
+                            }
+                            try {
+                                //LogLog.debug("Waiting for new event to dispatch.");
+11                              bf.wait();
+                            } catch(InterruptedException e) {
+                                LogLog.error("The dispathcer should not be interrupted.");
+                                break;
+                            }
+                        }
+3,6,9                   event = bf.get();
+4,7,10                      if(bf.wasFull()) {
+                            //LogLog.debug("Notifying AsyncAppender about freed space.");
+5                           bf.notify();
+                        }
+                    }
+                }
+                ...
+            }
+    </pre>
+<p>
+Precondition: The buffer bf is full. Thread t1 and t2 each appends one more event to bf. 
+<br>Thread t3 is taking events out of bf.
+<br>Assume the max size of bf is N.
+</p>
+<p>
+    a) Thread t1 and t2 try to append new event to the buffer, and as the buffer is full, so both threads are waiting at 1 and 2.<br>
+    b) Context switched, thread t3 retrieves an event at 3, so now the buffer's size is N-1. And the condition at 4 is satisfied, so t3 notifies waiting thread at 5.<br>
+    c) There are two threads are waiting on monitor bf, and only one thread is waken by the notification. Assume t1 is waken.<br>
+    d) However, context is not switched, t3 continues to retrieve an event from the buffer at 6. Now the buffer's size is N-2.<br>
+    e) Context switched, t1 wakes as we assumed at step c). And it puts an event into the buffer at 8, so now the buffer's size is N-1, but t2 is still waiting. And t1 goes to the end of the method and then finishes.<br>
+    f) Context switched, t3 continues to retrieve event from the buffer at 9, now the buffer's size is N-2. When it checks bf.wasFull() at 10, the condition is not satisfied and it will never be.<br>
+    g) t3 continues to retrieve events until the buffer is empty and it waits at 11.  Now both t2 and t3 are waiting and no one shall notify them.   
+    
+</p>
+
+
+
+
+
+
+
+    <h2>
+        <b>How To Reproduce: </b>
+    </h2>
+<p>
+        This bug is reproduced under log4j 1.2.13 and JDK 1.6.0_33.
+        <br>Execute
+the following scripts to run the test to reproduce the bug (assume the
+location of the log4j test project is log4j_test_home).</p>
+<p>
+        <b>Linux:</b><br> <i>${log4j_test_home}/scripts/38137.sh
+            [--monitoroff]</i><br> <b>Windows:</b><br> <i>%log4j_test_home%\scripts\38137.bat
+            [--monitoroff]</i>
+    </p>
+    <p><b>Example:</b>
+        Use monitor to report and terminate the program when forever waiting
+        happens:<i><br>${log4j_test_home}/scripts/38137.sh</i>
+        <br><br>
+        Turn off monitor:<br> <i> ${log4j_test_home}/scripts/38137.sh
+            --monitoroff</i>
+    </p>
+    <table border="1">
+        <tbody>
+            <tr>
+                <td>Option</td>
+                <td>Function</td>
+
+
+            </tr>
+
+
+            <tr>
+                <td>--monitoroff, -mo</td>
+                <td>Turn off to stop reporting bug messages and ending program
+                    when test <br>runs into the expected concurrency bug which is
+                    a forever waiting.<br> User has to terminate the program
+                    manually when this option is set.
+                </td>
+
+
+            </tr>
+        </tbody>
+    </table>
+</body></html>

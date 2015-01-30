@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head>
+
+
+<meta charset="UTF-8"><title>pool bug 162</title></head><body>
+
+	<h1>
+		<b>Bug 162</b>
+	</h1>
+	<h2>
+		<b>Bug Description:</b>
+	</h2>
+	<p>
+		This is a wait-notify deadlock bug.
+        <br>A sample deadlock thread dump is:
+		<pre>
+Thread[main,5,main] is waiting:
+   at java.lang.Object.wait(Native Method)
+   at java.lang.Object.wait(Object.java:503)
+   at org.apache.commons.pool.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:1090)
+   at Test162.testWhenExhaustedBlockInterupt(Test162.java:220)
+   at Test162.main(Test162.java:262)
+		</pre>
+        More details about this bug are at
+        <a href="https://issues.apache.org/jira/browse/POOL-162">POOL-162</a> JIRA page.
+    </p>
+    <h2>
+		<b>Interleaving Description:</b>
+	</h2>
+    <pre><b>org.apache.commons.pool.impl.GenericObjectPool:</b><br><br>t1  t2   public Object borrowObject() throws Exception {<br>            ...<br>1   12      _allocationQueue.add(latch);<br>    13       allocate();<br>            ...<br>            switch(whenExhaustedAction) {<br>            ...<br>            case WHEN_EXHAUSTED_BLOCK:<br>                try {<br>                    synchronized (latch) {<br>                        if(maxWait &lt;= 0) {<br>2   14                      latch.wait();<br>                        } <br>                        ...<br>                    }<br>                }<br>                catch(InterruptedException e) {<br>                    Thread.currentThread().interrupt();<br>3                   throw e;<br>                }<br>                if(maxWait &gt; 0 &amp;&amp; ((System.currentTimeMillis() - starttime) &gt;= maxWait)) {<br>                    throw new NoSuchElementException("Timeout waiting for idle    object");<br>                }<br>        ...<br>        <br>        } <br>        <br>        private synchronized void allocate() {<br>            if (isClosed()) return;<br>        <br>            // First use any objects in the pool to clear the queue<br>            for (;;) {<br>    8           if (!_pool.isEmpty() &amp;&amp; !_allocationQueue.isEmpty()) {<br>                    Latch latch = (Latch) _allocationQueue.removeFirst();<br>    9               latch.setPair((ObjectTimestampPair) _pool.removeFirst());<br>    10               _numInternalProcessing++;<br>                    synchronized (latch) {<br>    11                   latch.notify();<br>                    }<br>                } else {<br>                    break;<br>                }<br>            }<br>        <br>            // Second utilise any spare capacity to create new objects<br>                                                  <br>        }<br>        <br>        public void returnObject(Object obj) throws Exception {<br>            try {<br>    4           addObjectToPool(obj, true);<br>            } catch (Exception e) {<br>                ...<br>            }<br>        }<br>        <br>        private void addObjectToPool(Object obj, boolean decrementNumActive) throws Exception {<br>            ...<br>            if (_lifo) {<br>    5           _pool.addFirst(new ObjectTimestampPair(obj));<br>            } else {<br>                _pool.addLast(new ObjectTimestampPair(obj));<br>            }<br>            if (decrementNumActive) {<br>    6           _numActive--;<br>            }<br>    7       allocate();<br>            ...<br>        } </pre>
+           <p>Precondition: _maxActive is 1, and 1 object has been borrowed from pool. Pool is empty.</p>
+<p>
+    a) thread 1 borrows an object, and the associated latch is added into _allocationQueue at 1.
+<br>b) thread 1 waits at 2, because pool is empty.
+<br>c) thread 1 is interrupted, it throws an exception at 3 and terminates.
+<br>d) thread 2 returns the borrowed object to pool. It executes 4 and 5. There is one idle object in pool now.
+<br>e) active number is decreased at 6, _numActive is 0 now.
+<br>f) thread 2 calls allocate() at 7 and comes to 8. _pool is not
+empty due to step d), _allocationQueue is not empty due to step a), and
+_allocationQueue is not cleared at step c).
+<br>g) the idle object in pool is associated with the thread 1's dead
+latch at 9. This object could never be returned to pool again and this
+is memory leak.
+<br>h) _numInternalProcessing is added to 1 at 10.
+<br>i) The execution of 11 has no effects, because the waiting thread is already interrupted and at step c).
+<br>j) thread 2 goes through 12 and 13 to borrow an object from pool.
+But the only object in pool has been associated to the dead thread1 at
+step g), so thread 2 will wait forever at 14 and no one can notify it.
+</p>
+
+	<h2>
+		<b>How To Reproduce:</b>
+	</h2>
+
+	<p>
+		This bug is reproduced under pool 1.5 and JDK 1.6.0_33.
+        <br>Execute the following scripts to run the test to reproduce the bug (assume the location of the pool test project is pool_test_home).
+    </p>
+    <p>
+	<b>Linux:</b>
+	<br>
+	<i>${pool_test_home}/scripts/162.sh </i>
+	<br>
+	<b>Windows:</b>
+	<br>
+	<i>%pool_test_home%\scripts\162.bat</i>
+    </p>
+</body></html>

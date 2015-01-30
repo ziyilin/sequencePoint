@@ -15,7 +15,7 @@ public abstract class ConditionAnnotation {
 	
 	public abstract boolean isConditionTrue();
 	
-	public void  notifyBegin(Object lock){
+	synchronized public void  notifyBegin(Object lock){
 		int lockId= AddLinesToTraceProgram.getInstance().getUniqueObjId(lock);
 		boolean val=isConditionTrue();
 		AddLinesToTraceProgram.getInstance().addLineWithConditionId("if(c"+condId+"){",condId);
@@ -30,7 +30,7 @@ public abstract class ConditionAnnotation {
 		ending();
 	}
 	
-	public void waitBegin(Object lock){
+	synchronized public void waitBegin(Object lock){
 		int lockId= AddLinesToTraceProgram.getInstance().getUniqueObjId(lock);
 		boolean val=isConditionTrue();
 		AddLinesToTraceProgram.getInstance().addLineWithConditionId("if(c"+condId+"){",condId);
@@ -45,7 +45,7 @@ public abstract class ConditionAnnotation {
 		ending();
 	}
 
-	public void logChange(){
+	synchronized public void logChange(){
 		boolean newVal=isConditionTrue();
 		if(newVal!=curVal){
 			AddLinesToTraceProgram.getInstance().addLineWithConditionId("c"+condId+"="+newVal+";",condId);

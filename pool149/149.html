@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pool bug 149</title>
+</head>
+<body>
+
+
+    <h1>
+        <b>Bug 149</b>
+    </h1>
+
+    <h2>
+        <b>Bug Description:</b>
+    </h2>
+    <p>This is a wait-notify deadlock bug.<br>
+    Following is an example of deadlocked thread dump:
+    <pre>
+"Thread-3" prio=6 tid=0x000000000e202000 nid=0xfeb4 in Object.wait() [0x000000000e88e000]
+   java.lang.Thread.State: WAITING (on object monitor)
+    at java.lang.Object.wait(Native Method)
+    - waiting on <0x00000007d6089b28> (a org.apache.commons.pool.impl.GenericObjectPool$Latch)
+    at java.lang.Object.wait(Object.java:503)
+    at org.apache.commons.pool.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:1090)
+    - locked <0x00000007d6089b28> (a org.apache.commons.pool.impl.GenericObjectPool$Latch)
+    at Test149$TestThread2.run(Test149.java:123)
+    at java.lang.Thread.run(Thread.java:722)
+
+"Thread-2" prio=6 tid=0x000000000e1d6000 nid=0x1075c in Object.wait() [0x000000000e78f000]
+   java.lang.Thread.State: WAITING (on object monitor)
+    at java.lang.Object.wait(Native Method)
+    - waiting on <0x00000007d6089af8> (a org.apache.commons.pool.impl.GenericObjectPool$Latch)
+    at java.lang.Object.wait(Object.java:503)
+    at org.apache.commons.pool.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:1090)
+    - locked <0x00000007d6089af8> (a org.apache.commons.pool.impl.GenericObjectPool$Latch)
+    at Test149$TestThread1.run(Test149.java:102)
+    at java.lang.Thread.run(Thread.java:722)
+    </pre>
+    <br>More details about this bug are at
+    <a href="https://issues.apache.org/jira/browse/POOL-149">POOL-149</a>
+    JIRA page.
+    </p>
+    <h2>
+        <b>Interleaving Description:</b>
+    </h2>
+    <pre>   
+<b>org.apache.commons.pool.impl.GenericObjectPool</b>
+
+t1  t2  private synchronized void allocate() {
+            ...
+            // Second utilise any spare capacity to create new objects
+            for(;;) {
+    5            if((!_allocationQueue.isEmpty()) && (_maxActive < 0 || (_numActive + _numInternalProcessing) < _maxActive)) {
+                    Latch latch = (Latch) _allocationQueue.removeFirst();
+                    latch.setMayCreate(true);
+                    _numInternalProcessing++;
+                    synchronized (latch) {
+    6                   latch.notify();
+                    }
+                } else {
+                    break;
+                }
+         }
+         
+         public Object borrowObject() throws Exception {
+            ...
+1           _allocationQueue.add(latch);
+            ...
+            case WHEN_EXHAUSTED_BLOCK:
+                try {
+2                   synchronized (latch) {
+                        if(maxWait <= 0) {
+7                           latch.wait();
+            ...
+        }
+        
+        public void invalidateObject(Object obj) throws Exception {
+            try {
+                if (_factory != null) {
+                    _factory.destroyObject(obj);
+                }
+            } finally {
+                synchronized (this) {
+    3               _numActive--;
+    4               allocate();
+                }
+            }
+    }   </pre>
+<p>
+Precondition: Pool is empty, _maxActive is N, _numActive is N and _numInternalProcessing is 0.
+</p>
+<p>
+    a) thread 1 borrows an object from pool. It creates a new latch and adds it into _allocationQueue at 1. There is one latch in _allocationQueue.
+<br>b) thread 1 has to wait for available object, so it comes to 2.
+<br>c) before thread 1 obtains the lock at 2, context switched, thread 2 calls invalidateObject() and decrease active number at 3. Now _numActive is N-1.
+<br>d) thread 2 calls allocate(), and pass the check at 5, because _allocationQueue is added with one latch at step a), and _numActive (N-1) + _numInternalProcessing (0) < _maxActive (N).
+<br>e) thread 2 obtains the latch lock and notify the latch at 6. This latch is the one added at step a).
+<br>f) context switched, when latch lock is released by thread 2, thread 1 obtains the lock and call latch.wait() at 7.
+<br>Because latch waits after notifies, it will wait forever.  </p>
+
+    <br>
+    <h2>
+        <b>How To Reproduce: </b>
+    </h2>
+
+    <p>
+        This bug is reproduced under pool 1.5 and JDK 1.6.0_33.
+        <br>Execute the following scripts to run the test to reproduce the bug (assume the location of the pool test project is pool_test_home).
+    </p>
+    <p>
+        <b>Linux:</b><br> <i>${pool_test_home}/scripts/149.sh
+            [--monitoroff]</i><br> <b>Windows:</b><br> <i>%pool_test_home%\scripts\149.bat
+            [--monitoroff]</i>
+    </p>
+    <p>
+    <b>Example:</b>
+    <br>
+        Use monitor to report and terminate the program when deadlock happens:
+        <br><i>${pool_test_home}/scripts/149.sh</i>
+    <br><br>
+        Turn off monitor:
+        <br>
+        <i> ${pool_test_home}/scripts/149.sh
+            --monitoroff</i>
+    </p>
+    <table border="1">
+        <tbody>
+            <tr>
+                <td>Option</td>
+                <td>Function</td>
+
+
+            </tr>
+
+
+            <tr>
+                <td>--monitoroff, -mo</td>
+                <td>Turn off to stop reporting bug messages and ending program
+                    when test <br>runs into the expected concurrency bug which is
+                    a forever waiting.<br> User has to terminate the program
+                    manually when this option is set.
+                </td>
+
+
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

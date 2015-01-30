@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pool bug 146</title>
+</head>
+<body>
+
+    <h1>
+        <b>Bug 146</b>
+    </h1>
+    <h2><b>Bug Description:</b></h2>
+    <p>This is a wait-notify deadlock bug.<br>
+    Following is an example of deadlocked thread dump:
+    <pre>
+"main" prio=6 tid=0x0000000001f9e000 nid=0x7170 in Object.wait() [0x000000000209e000]
+   java.lang.Thread.State: WAITING (on object monitor)
+    at java.lang.Object.wait(Native Method)
+    - waiting on <0x00000007d5ef4860> (a org.apache.commons.pool.impl.GenericKeyedObjectPool$Latch)
+    at java.lang.Object.wait(Object.java:503)
+    at org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject(GenericKeyedObjectPool.java:1122)
+    - locked <0x00000007d5ef4860> (a org.apache.commons.pool.impl.GenericKeyedObjectPool$Latch)
+    at Test146.testBlockedKeyDoesNotBlockPoolImproved(Test146.java:72)
+    at Test146.main(Test146.java:50)
+"Thread-0" prio=6 tid=0x000000000db1d800 nid=0xe5e0 in Object.wait() [0x000000000dfae000]
+   java.lang.Thread.State: WAITING (on object monitor)
+    at java.lang.Object.wait(Native Method)
+    - waiting on <0x00000007d5f45d18> (a org.apache.commons.pool.impl.GenericKeyedObjectPool$Latch)
+    at java.lang.Object.wait(Object.java:503)
+    at org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject(GenericKeyedObjectPool.java:1122)
+    - locked <0x00000007d5f45d18> (a org.apache.commons.pool.impl.GenericKeyedObjectPool$Latch)
+    at Test146$SimpleTestThread.run(Test146.java:98)
+    at java.lang.Thread.run(Thread.java:722)
+    </pre>
+    More details about this bug are at
+    <a href="https://issues.apache.org/jira/browse/POOL-146">POOL-146</a>
+    JIRA page.
+    </p>
+    <h2><b>Interleaving Description:</b></h2>
+    <pre>
+<b>org.apache.commons.pool.impl.GenericObjectPool:</b>
+
+t1  t2      public Object borrowObject(Object key) throws Exception {
+                    long starttime = System.currentTimeMillis();
+1   10              Latch latch = new Latch(key);
+                    ...
+            
+                        // Add this request to the queue
+2   11                  _allocationQueue.add(latch);
+            
+                        // Work the allocation queue, allocating idle instances and
+                        // instance creation permits in request arrival order
+3   12                  allocate();
+                    }
+                    ...
+7   17              if (null == latch.getPair()) {
+                        ...
+                        switch(whenExhaustedAction) {
+                            ...
+8   18                      case WHEN_EXHAUSTED_BLOCK:
+                                try {
+                                    synchronized (latch) {
+                                        if (maxWait <= 0) {
+9   19                                      latch.wait();
+                    ...
+            }
+
+            private void allocate() {
+                ...
+                    for (;;) {
+4   13                  if (!_allocationQueue.isEmpty()) {
+                            // First use any objects in the pool to clear the queue
+5   14                      Latch latch = (Latch) _allocationQueue.getFirst();
+    15                      ObjectQueue pool = (ObjectQueue)(_poolMap.get(latch.getkey()));
+                            if (null == pool) {
+                                pool = new ObjectQueue();
+                                _poolMap.put(latch.getkey(), pool);
+                                _poolList.add(latch.getkey());
+                            }
+                            latch.setPool(pool);
+6   16                      if (!pool.queue.isEmpty()) {
+                                ...
+                            }
+                            ...
+                        }
+                        ...
+                    }
+                ...
+            }
+    </pre>
+<p>
+Preconditions:
+ _maxActive=N. N objects have been borrowed from pool with key "A". But no objects are borrowed from pool with key "B".
+<br>Exhausted action is set to block.
+</ul>
+</p>
+<p>
+    a) thread 1 borrows an object from pool with key "A". Latch A is created at 1 and added to allocation queue at 2. Now _allocationQueue has latch A at the head.
+<br>b) thread 1 is blocked at 9 according to the exhausted action.
+<br>c) thread 2 borrows an object from pool with key "B". Latch B is created at 10 and added into the rear of allocation queue at 11. Now _allocationQueue has latch A at head and latch B at rear.
+<br>d) thread 2 calls allocate at 12 and comes to 14 due to _allocationQueue is not empty. The head of _allocationQueue, which is latch A is fetched at 14.
+<br>e) pool with key "A" which is exhausted is fetched at 15. thread 2 is about to borrow object from pool "B", but latch B has no chance to be dealt until latch A is removed from _allocationQueue. So thread 2 is blocked at 19.
+</p>
+
+    <br>
+    <h2>
+        <b>How To Reproduce: </b>
+    </h2>
+    
+    <p>
+        This bug is reproduced under pool 1.5 and JDK 1.6.0_33.
+        <br>Execute the following scripts to run the test to reproduce the bug (assume the location of the pool test project is pool_test_home).
+    </p>
+    <p>
+    <b>Linux:</b>
+    <br>
+    <i>${pool_test_home}/scripts/146.sh [--monitoroff]</i>
+    <br>
+    <b>Windows:</b>
+    <br>
+    <i>%pool_test_home%\scripts\146.bat [--monitoroff]</i>
+    </p>
+    <p>
+    <b>Example:</b>
+    <br>
+        Use monitor to report and terminate the program when deadlock happens:
+        <br>
+        <i>${pool_test_home}/scripts/146.sh</i>
+    <br><br>
+        Turn off monitor:
+        <br> <i> ${pool_test_home}/scripts/146.sh
+            --monitoroff</i>
+    </p>
+    <table border="1">
+        <tbody>
+            <tr>
+                <td>Option</td>
+                <td>Function</td>
+
+
+            </tr>
+
+
+            <tr>
+                <td>--monitoroff, -mo</td>
+                <td>Turn off to stop reporting bug messages and ending program
+                    when test <br>runs into the expected concurrency bug which is
+                    a forever waiting.<br> User has to terminate the program
+                    manually when this option is set.
+                </td>
+
+
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
