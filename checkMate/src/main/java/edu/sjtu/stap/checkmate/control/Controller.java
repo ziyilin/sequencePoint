@@ -8,7 +8,9 @@ import org.apache.commons.io.FileUtils;
 public class Controller {
 
 	public static void acquireLock(Object lock) {
-		write2Map("synchronized(l" + lock.hashCode() + "){");
+		StackTraceElement callee=Thread.currentThread().getStackTrace()[2];
+		
+		write2Map("synchronized(l" + lock.hashCode() + "){ //"+callee.getClassName()+"@"+callee.getMethodName()+"@"+callee.getLineNumber());
 	}
 
 	public static void acquireLock(int thread, int monitor) {
