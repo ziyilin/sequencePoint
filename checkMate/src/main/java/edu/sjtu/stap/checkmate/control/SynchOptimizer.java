@@ -40,7 +40,7 @@ public class SynchOptimizer {
 				}
 				else if (str.startsWith("synchronized")){
 					//if two nested synchronized sections monitor on different objects, keep both.  
-					if(!stack.empty()&&!str.equals(codesOfAThread.get(stack.peek()))){
+					if(!stack.empty()&&!sameMonitor(str, codesOfAThread.get(stack.peek()))){
 						stack.clear();
 					}else{
 						stack.push(i);
@@ -57,5 +57,17 @@ public class SynchOptimizer {
 				.getInstance().getThrToLines().get(t).remove(removeIndex);
 			}
 		}
+	}
+
+	private static boolean sameMonitor(String str, String a) {
+		String monitor1=extractMonitor(str);
+		String monitor2=extractMonitor(a);
+		return monitor1.equals(monitor2);
+	}
+
+	private static String extractMonitor(String str) {
+		int start=str.indexOf('(');
+		int end=str.indexOf(')');
+		return str.substring(start+1, end);
 	}	
 }
