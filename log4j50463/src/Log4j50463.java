@@ -1,4 +1,10 @@
-package org.apache.log4j;
+import org.apache.log4j.AsyncAppender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
+
+
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one

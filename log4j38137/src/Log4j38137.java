@@ -1,6 +1,11 @@
-package org.apache.log4j;
 
-import org.apache.log4j.spi.LoggingEvent;
+
+import org.apache.log4j.AsyncAppender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.MockEvent;
+import org.apache.log4j.PatternLayout;
 
 /**
  * Bug URL:https://issues.apache.org/bugzilla/show_bug.cgi?id=38137
@@ -76,12 +81,5 @@ public class Log4j38137 {
         }
     }
 
-    @SuppressWarnings("serial")
-    private class MockEvent extends LoggingEvent {
-
-        public MockEvent() {
-            super("", new Category("as"), 1, new Priority(), new Object(),
-                    new Throwable());
-        }
-    }
+   
 }
