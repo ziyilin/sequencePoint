@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>jdk bug 6648001</title>
+</head>
+<body>
+	
+
+		<h1><b>Bug 6648001</b></h1>
+		
+	<h2><b>Bug Description:</b></h2>
+    <p>
+	This is a wait-notify deadlock bug.
+	<br>
+    An example of deadlock thread trace:
+	<pre>
+"ServerRunner-1" prio=6 tid=0x0000000005f9e000 nid=0x1d68 in Object.wait() [0x0000000006bef000..0x0000000006bef910]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x0000000040006448> (a java.util.HashMap)
+	at java.lang.Object.wait(Object.java:485)
+	at sun.net.www.protocol.http.AuthenticationInfo.requestIsInProgress(AuthenticationInfo.java:117)
+	- locked <0x0000000040006448> (a java.util.HashMap)
+	at sun.net.www.protocol.http.AuthenticationInfo.getServerAuth(AuthenticationInfo.java:258)
+	at sun.net.www.protocol.http.HttpURLConnection.getServerAuthentication(HttpURLConnection.java:1632)
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1091)
+	- locked <0x0000000040147e68> (a sun.net.www.protocol.http.HttpURLConnection)
+	at Test6648001$Runner.run(Test6648001.java:119)
+    </pre>More details about this bug are at
+	<a href="https://bugs.openjdk.java.net/browse/JDK-6648001">JDK-6648001</a> JIRA page.
+	</p>
+    <h2><b>Interleaving Description:</b></h2>
+    <p>
+    <pre>
+        <b>
+sun.net.www.protocol.http.HttpURLConnection
+        </b>
+t1  t2  public synchronized InputStream getInputStream() throws IOException { 
+            ...
+1   5       serverAuthentication = getServerAuthentication(srvHdr);
+            ...
+            finally {
+                if (respCode == HTTP_PROXY_AUTH && proxyAuthentication != null) {
+                    proxyAuthentication.endAuthRequest();
+                } 
+8               else if (respCode == HTTP_UNAUTHORIZED && serverAuthentication != null) {
+9                   serverAuthentication.endAuthRequest();
+                }
+            }
+        }
+        
+<b>sun.net.www.protocol.http.AuthenticationInfo
+        </b>
+        static private boolean requestIsInProgress (String key) {
+            if (!serializeAuth) {
+                /* behavior is disabled. Revert to concurrent requests */
+                return false;
+            }
+            synchronized (requests) {
+                Thread t, c;
+                c = Thread.currentThread();
+2   6           if ((t=(Thread)requests.get(key))==null) {
+3                   requests.put (key, c);
+4                   return false;
+                }
+                if (t == c) {
+                    return false;
+                }
+                while (requests.containsKey(key)) {
+                    try {
+    7                   requests.wait ();
+                    } catch (InterruptedException e) {}
+                }
+            }
+            /* entry may be in cache now. */
+            return true;
+        }
+	</pre>
+    </p>
+    <p>
+	a) thread 1 tries to get serverAuthentication at 1 and it goes to 2 to get the value of key from requests. But the key's
+   value has not set before, so it's null here.
+<br>b) thread 1 put the value of key into requests at 3, and return false at 4.
+<br>c) serverAuthentication is set to null finally at 1.
+<br>d) context switched, thread 2 comes to 5 and checks the value of the same key at 6. This time it's not null because of the
+   put action at step b). And it comes to 7 to wait.
+<br>e) context switched, now thread 1 comes to 8. thread 2 could be notified to continue if 9 is executed. But at 8, as serverAuthentication
+   is null due to step a), 9 will not be reached. So thread 2 will wait forever.
+</p>
+	
+	<h2>
+		<b>How To Reproduce:</b>
+	</h2>
+
+	<p>
+		This bug is reproduced under JDK 1.6.0.
+        <br>It started at JDK 1.6.0, and has been fixed since JDK 1.6.0_10.
+        <br>Execute the following scripts to run the test to reproduce the bug (assume the location of the jdk6 test project is jdk_test_home).
+	</p>
+	<p>
+		<b>Linux:</b><br>
+		<i>${jdk_test_home}/scripts/6648001.sh [--monitoroff] [--javaloc path]</i><br>
+		<b>Windows:</b><br>
+		<i>%jdk_test_home%\scripts\6648001.bat [--monitoroff] [--javaloc path]</i><br>
+	<p><b>Example:</b>
+	<br>
+		Use monitor to report and terminate the program when deadlock happens:<i><br>${jdk_test_home}/scripts/6648001.sh</i>
+	<br><br>
+		Turn off monitor:<br> <i> ${jdk_test_home}/scripts/6648001.sh
+			--monitoroff</i>
+	</p>
+	<table border="1">
+		<tbody>
+			<tr>
+				<td>Option</td>
+				<td>Function</td>
+				<td>Default Value</td>
+                <td>Valid Values</td>
+
+			</tr>
+
+
+			<tr>
+				<td>--monitoroff, -mo</td>
+				<td>Turn off to stop reporting bug messages and ending program
+					when test <br>runs into the expected concurrency bug which is
+					a deadlock.<br> User has to terminate the program manually
+					when this option is set.
+				</td>
+				<td>N/A</td>
+                <td>N/A</td>
+
+
+			</tr>
+			<tr>
+				<td>--javaloc</td>
+				<td>The location of JDK that is eligible to reproduce the bug, if your java environment is not eligible.
+<br>In this case, it's JDK 1.6.0.
+It should be the absolute path to the JDK's java starter and ended with "/".<br>
+For example: ~/jdk/home/jdk1.6.0/bin/</td>
+				<td>N/A</td>
+                <td>string</td>
+			</tr>
+		</tbody>
+	</table>
+
+</body>
+</html>
