@@ -44,6 +44,11 @@ public class AddLinesToTraceProgram {
 		addLine(line);
 	}
 	
+	public void addLineWithLockId(String line, int lockId, long tId){
+		locks.add(lockId);
+		addLine(line, tId);
+	}
+	
 	public void addLine(String line){
 		Thread t;
 		synchronized(this){

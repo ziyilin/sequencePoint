@@ -6,11 +6,14 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 public class Controller {
+	private static String calleeLocation(){
+		StackTraceElement callee=Thread.currentThread().getStackTrace()[3];
+		return "//"+callee.getClassName()+"@"+callee.getMethodName()+"@"+callee.getLineNumber();
+	}
 
 	public static void acquireLock(Object lock) {
-		StackTraceElement callee=Thread.currentThread().getStackTrace()[2];
 		
-		write2Map("synchronized(l" + lock.hashCode() + "){ //"+callee.getClassName()+"@"+callee.getMethodName()+"@"+callee.getLineNumber());
+		write2Map("synchronized(l" + lock.hashCode() + "){ "+calleeLocation(),lock.hashCode());
 	}
 
 	public static void acquireLock(int thread, int monitor) {
@@ -30,11 +33,11 @@ public class Controller {
 	}
 
 	public static void wait(Object lock) {
-		write2Map("try{l" + lock.hashCode() + ".wait();\n}catch(InterruptedException e){e.printStackTrace();}");
+		write2Map("try{l" + lock.hashCode() + ".wait();\n}catch(InterruptedException e){e.printStackTrace();}"+calleeLocation(),lock.hashCode());
 	}
 
 	public static void notify(Object lock) {
-		write2Map("l" + lock.hashCode() + ".notify();");
+		write2Map("l" + lock.hashCode() + ".notify();"+calleeLocation(),lock.hashCode());
 	}
 
 	public static void notify(int thread, int monitor) {
@@ -43,7 +46,7 @@ public class Controller {
 	}
 
 	public static void notifyAll(Object lock) {
-		write2Map("l" + lock.hashCode() + ".notifyAll();");
+		write2Map("l" + lock.hashCode() + ".notifyAll();"+calleeLocation(),lock.hashCode());
 	}
 
 	public static void notifyAll(int thread, int monitor) {
@@ -95,6 +98,10 @@ public class Controller {
 	private static void write2Map(String contents, long tid) {
 
 		AddLinesToTraceProgram.getInstance().addLine(contents, tid);
+	}
+	
+	private static void write2Map(String contents, int lockId){
+		AddLinesToTraceProgram.getInstance().addLineWithLockId(contents, lockId);
 	}
 
 	public static String createTraceProgram() {
