@@ -1,7 +1,9 @@
 package edu.sjtu.stap.checkmate.instrument;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -10,17 +12,31 @@ import edu.sjtu.stap.checkmate.framework.instrument.GeneralMV;
 
 public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 
-	private int lastLoadVar;
 	private String methodName;
 	private String methodDesc;
+	private List<Instru> instructionQ; 
 
-
+	private class Instru{
+		final String method;
+		final Object[] parameters;
+		
+		public Instru(String m, Object... params){
+			method=m;
+			parameters=params;
+		}
+	}
 	public ConcurrentEventMV(MethodVisitor mv, String name, String desc) {
 		super(ASM5, mv);
 		methodName = name;
 		methodDesc = desc;
+		instructionQ=new ArrayList<Instru>();
 	}
 
+	public void visitLineNumber(int line,Label l){
+		mv.visitLineNumber(line, l);
+		instructionQ.clear();
+	}
+	
 	public void visitCode() {
 		mv.visitCode();
 		
@@ -43,7 +59,7 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 	public void visitInsn(int opcode) {
 		if (opcode == MONITORENTER) {
 			mv.visitInsn(opcode);
-			mv.visitVarInsn(ALOAD, lastLoadVar);
+			insertVariableLoadings();
 			mv.visitMethodInsn(INVOKESTATIC,
 					"edu/sjtu/stap/checkmate/control/Controller",
 					"acquireLock", "(Ljava/lang/Object;)V", false);
@@ -75,6 +91,8 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 						"edu/sjtu/stap/checkmate/control/Controller",
 						"releaseLock", "()V", false);
 			}
+		}else if(opcode==AALOAD){
+			instructionQ.add(new Instru("visitInsn", opcode));
 		}
 		
 		mv.visitInsn(opcode);
@@ -90,6 +108,9 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 				&& !owner.equals("Ledu/sjtu/stap/checkmate/control/ConditionAnnotation;")) {
 			InsertControllerWC();
 		}
+		if(opcode==Opcodes.GETFIELD||opcode==Opcodes.GETSTATIC){
+			instructionQ.add(new Instru("visitFieldInsn",opcode,owner,name,desc));
+		}
 	}
 
 	private void InsertControllerWC() {
@@ -100,8 +121,9 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 	}
 
 	public void visitVarInsn(int opcode, int var) {
-		if (opcode == ALOAD) {
-			lastLoadVar = var;
+		//Loads only
+		if(opcode>=Opcodes.ILOAD&&opcode<=Opcodes.SALOAD){
+			instructionQ.add(new Instru("visitVarInsn",opcode,var));
 		}
 		mv.visitVarInsn(opcode, var);
 	}
@@ -137,6 +159,21 @@ public class ConcurrentEventMV extends GeneralMV implements Opcodes {
 		mv.visitMethodInsn(INVOKESTATIC,
 				"edu/sjtu/stap/checkmate/control/Controller", name,
 				desc, false);
-		mv.visitVarInsn(ALOAD, lastLoadVar);
+		insertVariableLoadings();
+	}
+
+	private void insertVariableLoadings() {
+		for(Instru ins:instructionQ){
+			if(ins.method.equals("visitVarInsn")){
+				mv.visitVarInsn((Integer)ins.parameters[0],(Integer)ins.parameters[1]);
+			}else if(ins.method.equals("visitInsn")){
+				mv.visitInsn((Integer) ins.parameters[0]);
+			}else if(ins.method.equals("visitFieldInsn")){
+				mv.visitFieldInsn((Integer)ins.parameters[0],(String)ins.parameters[1],
+						(String)ins.parameters[2],(String)ins.parameters[3]);
+			}
+				
+		}
+		instructionQ.clear();
 	}
 }
