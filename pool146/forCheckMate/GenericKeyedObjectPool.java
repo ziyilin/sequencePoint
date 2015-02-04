@@ -1264,6 +1264,7 @@ public class GenericKeyedObjectPool extends BaseKeyedObjectPool implements Keyed
                             latch.notify();
                         }
                         // Next item in queue
+                        c3.notifyEnd();
                         continue;
                     }
                     c3.notifyEnd();
