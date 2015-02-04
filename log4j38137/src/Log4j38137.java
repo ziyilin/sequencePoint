@@ -21,6 +21,7 @@ public class Log4j38137 {
 
     public Log4j38137() {
         asyncAppender = new AsyncAppender();
+        asyncAppender.setBufferSize(9);
         configLogger();
     }
 
@@ -73,7 +74,7 @@ public class Log4j38137 {
             // from buffer and notify it to wake up. But when all
             // threads appended events to buffer to full, then all
             // of them are waiting for notifying.
-            while (i < 50) {
+            while (i < 5) {
                 MockEvent event = new MockEvent();
                 asyncAppender.append(event);
                 i++;
