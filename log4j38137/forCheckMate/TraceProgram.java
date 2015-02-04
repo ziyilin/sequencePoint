@@ -104,7 +104,6 @@ public class TraceProgram {
 						l166999797.notify();
 					} // ending
 
-					l166999797.notify();// org.apache.log4j.Dispatcher@run@384
 				} // ending
 
 			}
@@ -371,7 +370,6 @@ public class TraceProgram {
 						}
 					} // ending
 				}
-
 				try {
 					l166999797.wait();
 				} catch (InterruptedException e) {
@@ -395,7 +393,10 @@ public class TraceProgram {
 				} // ending
 
 				if (c836051140) {
-					l166999797.notify();// org.apache.log4j.AsyncAppender@append@149
+					synchronized (l166999797) {
+						l166999797.notify();
+					} // ending
+
 				} // ending
 
 			}
@@ -413,7 +414,10 @@ public class TraceProgram {
 				} // ending
 
 				if (c836051140) {
-					l166999797.notify();// org.apache.log4j.AsyncAppender@append@149
+					synchronized (l166999797) {
+						l166999797.notify();
+					} // ending
+
 				} // ending
 
 			}
@@ -498,10 +502,7 @@ public class TraceProgram {
 				} // ending
 
 				if (c836051140) {
-					synchronized (l166999797) {
-						l166999797.notify();
-					} // ending
-
+					l166999797.notify();// org.apache.log4j.AsyncAppender@append@149
 				} // ending
 
 			}
@@ -519,10 +520,7 @@ public class TraceProgram {
 				} // ending
 
 				if (c836051140) {
-					synchronized (l166999797) {
-						l166999797.notify();
-					} // ending
-
+					l166999797.notify();// org.apache.log4j.AsyncAppender@append@149
 				} // ending
 
 			}
