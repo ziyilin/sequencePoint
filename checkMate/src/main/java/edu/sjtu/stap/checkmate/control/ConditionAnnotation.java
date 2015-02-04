@@ -64,7 +64,7 @@ public abstract class ConditionAnnotation {
 	}
 	
 	private void ending() {
-		AddLinesToTraceProgram.getInstance().addLine("}\n");
+		AddLinesToTraceProgram.getInstance().addLine("} //ending\n");
 	}
 
 	public boolean matchAssociated(Object obj) {
