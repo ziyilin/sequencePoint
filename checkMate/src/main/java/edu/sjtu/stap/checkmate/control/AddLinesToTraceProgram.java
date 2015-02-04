@@ -80,7 +80,7 @@ public class AddLinesToTraceProgram {
 		return locks;
 	}
 
-	public Map<Long, List<String>> getThrToLines() {
+	public synchronized Map<Long, List<String>> getThrToLines() {
 		return thrToLines;
 	}
 }
