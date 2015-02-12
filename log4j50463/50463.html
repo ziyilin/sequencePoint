@@ -43,34 +43,40 @@ This is a producer-consumer pattern, but when the consumer is down due to a not 
 org.apache.log4j.AsyncAppender
 t1  t2  public void append(LoggingEvent event) {
             ...
-            synchronized(bf) {
-                while(bf.isFull()) {
-                  try {
-                    //LogLog.debug("Waiting for free space in buffer, "+bf.length());
-3                   bf.wait();
-                  } catch(InterruptedException e) {
-                    ...
-                  }
+            synchronized (buffer) {
+                while (true) {
+                    int previousSize = buffer.size();
+         
+                    if (previousSize < bufferSize) {
+2                       buffer.add(event);
+          
+                        if (previousSize == 0) {
+                            buffer.notifyAll();
+                        }
+          
+                        break;
+                    }
+          
+                    boolean discard = true;
+                    if (blocking
+                            && !Thread.interrupted()
+                            && Thread.currentThread() != dispatcher) {
+                          try {
+3                            buffer.wait();
+                             discard = false;
+                          } catch (InterruptedException e) {
+                              ...
+                          }
+                    }
                 }
                 ...
-2               bf.put(event);
-                ...
-            }
-        }
 
 org.apache.log4j.AsyncAppender$Dispatcher
         public void run() {
             ...
             
-            while(true) {
-                ...
-                event = bf.get();
-                ...
-                synchronized(container.aai) {
-                    if(aai != null && event != null) {
-    1                   aai.appendLoopOnAppenders(event);
-                    }
-                }
+            synchronized (appenders) {
+    1           appenders.appendLoopOnAppenders(events[i]);
             }
             ...
         }

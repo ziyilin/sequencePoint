@@ -1094,11 +1094,7 @@ public class GenericKeyedObjectPool extends BaseKeyedObjectPool implements Keyed
         long starttime = System.currentTimeMillis();
         
         Latch latch = new Latch(key);
-        ConditionAnnotation condition1=new ConditionAnnotation(latch){
-    		public boolean isConditionTrue(){
-    			return (((Latch)o).getPair()==null)&&!((Latch)o).mayCreate();
-    		}
-    	};
+        
         byte whenExhaustedAction;
         long maxWait;
         synchronized (this) {
@@ -1115,7 +1111,11 @@ public class GenericKeyedObjectPool extends BaseKeyedObjectPool implements Keyed
             // instance creation permits in request arrival order
             allocate();
         }
-
+        ConditionAnnotation condition1=new ConditionAnnotation(latch){
+    		public boolean isConditionTrue(){
+    			return (((Latch)o).getPair()==null)&&!((Latch)o).mayCreate();
+    		}
+    	};
         for(;;) {
             synchronized (this) {
                 assertOpen();

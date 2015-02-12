@@ -39,7 +39,10 @@ public class TraceProgram {
 		}
 	};
 	static Thread t9 = new Thread() {
+		
+		
 		public void run() {
+			this.setDaemon(true);
 			synchronized (l166999797) { // org.apache.log4j.Dispatcher@run@360
 				if (c736742261) {
 					synchronized (l166999797) {

@@ -531,20 +531,7 @@ public class AsyncAppender extends AppenderSkeleton
      */
     public void run() {
       boolean isActive = true;
-      ConditionAnnotation c1=new ConditionAnnotation(buffer){
 
-		@Override
-		public boolean isConditionTrue() {
-			int bufferSize;
-			boolean isActive;
-			synchronized(o){
-				bufferSize = ((List)o).size();
-	            isActive = !parent.closed;
-			}
-			return bufferSize==0&&isActive;
-		}
-    	  
-      };
       //
       //   if interrupted (unlikely), end thread
       //
@@ -562,13 +549,13 @@ public class AsyncAppender extends AppenderSkeleton
           synchronized (buffer) {
             int bufferSize = buffer.size();
             isActive = !parent.closed;
-            c1.waitBegin(buffer);
+
             while ((bufferSize == 0) && isActive) {
               buffer.wait();
               bufferSize = buffer.size();
               isActive = !parent.closed;
             }
-            c1.waitEnd();
+
             if (bufferSize > 0) {
               events = new LoggingEvent[bufferSize + discardMap.size()];
               buffer.toArray(events);
