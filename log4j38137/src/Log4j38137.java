@@ -20,7 +20,9 @@ public class Log4j38137 {
     private AsyncAppender asyncAppender;
 
     public Log4j38137() {
+    	//bug trigger #1
         asyncAppender = new AsyncAppender();
+        //bug trigger #1
         asyncAppender.setBufferSize(9);
         configLogger();
     }
@@ -76,7 +78,9 @@ public class Log4j38137 {
             // of them are waiting for notifying.
             while (i < 5) {
                 MockEvent event = new MockEvent();
+                //bug trigger #2
                 asyncAppender.append(event);
+                //bug trigger #2
                 i++;
             }
         }

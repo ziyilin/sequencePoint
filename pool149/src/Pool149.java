@@ -80,7 +80,9 @@ public class Pool149 {
 		public void run() {
 
 			try {
+				//bug trigger #1
 				testPool.invalidateObject(object);
+				//bug trigger #1
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -91,7 +93,9 @@ public class Pool149 {
 	class Thread2 extends Thread {
 		public void run() {
 			try {
+				//bug trigger #2
 				testPool.borrowObject();
+				//bug trigger #2
 			} catch (Exception ex) {
 			}
 		}

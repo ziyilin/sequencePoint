@@ -4,8 +4,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 
-
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -27,9 +25,8 @@ import org.apache.log4j.SimpleLayout;
  */
 
 /**
- * bug URL: https://issues.apache.org/bugzilla/show_bug.cgi?id=50463 
- * This is a wait-notify deadlock.
- * Reproduce environment: log4j 1.2.14, JDK 1.6.0_33
+ * bug URL: https://issues.apache.org/bugzilla/show_bug.cgi?id=50463 This is a
+ * wait-notify deadlock. Reproduce environment: log4j 1.2.14, JDK 1.6.0_33
  * 
  * This test shall not trigger deadlock.
  * 
@@ -38,48 +35,52 @@ import org.apache.log4j.SimpleLayout;
  * @modified by Ziyi Lin
  */
 public class Log4j50463 {
-    private static int BUFFER_SIZE = 10;
-    private Logger logger;
+	private static int BUFFER_SIZE = 10;
+	private Logger logger;
 
-    public Log4j50463() {
-        AsyncAppender asyncAppender = new AsyncAppender();
-        asyncAppender.setBufferSize(BUFFER_SIZE);
-        asyncAppender.addAppender(new ConsoleAppender(new SimpleLayout()));
-        LogManager.getRootLogger().addAppender(asyncAppender);
-        logger = Logger.getLogger(Log4j50463.class);
-    }
+	public Log4j50463() {
+		AsyncAppender asyncAppender = new AsyncAppender();
+		asyncAppender.setBufferSize(BUFFER_SIZE);
+		asyncAppender.addAppender(new ConsoleAppender(new SimpleLayout()));
+		LogManager.getRootLogger().addAppender(asyncAppender);
+		logger = Logger.getLogger(Log4j50463.class);
+	}
 
-    public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException {
 
-        Log4j50463 test = new Log4j50463();
-        test.logToFillBuffer();
-    }
+		Log4j50463 test = new Log4j50463();
+		test.logToFillBuffer();
+	}
 
-    private void logToFillBuffer() {
-        // start several threads to fill up the buffer.
-        Thread t=new FillBufferThread();
-        t.start();
-        logToKillDispatcher();
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-    }
+	private void logToFillBuffer() {
+		// start several threads to fill up the buffer.
+		Thread t = new FillBufferThread();
+		t.start();
+		logToKillDispatcher();
+		try {
+			t.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
-    private class FillBufferThread extends Thread {
-        public void run() {
-            for (int i = 0; i < BUFFER_SIZE/2; i++) {
-                logger.error("Locking me up");
-            }
-        }
-    }
+	private class FillBufferThread extends Thread {
+		public void run() {
+			for (int i = 0; i < BUFFER_SIZE / 2; i++) {
+				//bug trigger #1
+				logger.error("Locking me up");
+				//bug trigger #1
+			}
+		}
+	}
 
-    private void logToKillDispatcher() {
-        logger.error(new Object() {
-            public String toString() {
-                throw new RuntimeException();
-            }
-        });
-    }
+	private void logToKillDispatcher() {
+		//bug trigger #2
+		logger.error(new Object() {
+			public String toString() {
+				throw new RuntimeException();
+			}
+		});
+		//bug trigger #2
+	}
 }

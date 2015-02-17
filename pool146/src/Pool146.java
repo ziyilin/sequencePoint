@@ -85,7 +85,9 @@ public class Pool146 {
 
         public void run() {
             try {
+            	//bug trigger #1
                 Object obj = _pool.borrowObject(_key);
+                //bug trigger #1
                 _pool.returnObject(_key, obj);
             } catch (Exception e) {
                 // Ignore

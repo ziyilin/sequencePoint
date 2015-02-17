@@ -204,7 +204,9 @@ public class Pool162 {
         wtt.start();
         // Give wtt time to start
         Thread.sleep(200);
+        //bug trigger #1
         wtt.interrupt();
+        //bug trigger #1
         // Give interrupt time to take effect
         Thread.sleep(200);
         // Return object to the pool
@@ -233,9 +235,12 @@ public class Pool162 {
 
         public void run() {
             try {
+            	//bug trigger #2
                 Object obj = _pool.borrowObject();
                 Thread.sleep(_pause);
+                //bug trigger #2
                 _pool.returnObject(obj);
+                
             } catch (Exception e) {
             }
         }
