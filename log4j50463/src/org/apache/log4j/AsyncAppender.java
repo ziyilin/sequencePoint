@@ -30,8 +30,6 @@ import org.apache.log4j.helpers.AppenderAttachableImpl;
 import org.apache.log4j.spi.AppenderAttachable;
 import org.apache.log4j.spi.LoggingEvent;
 
-import edu.sjtu.stap.checkmate.control.ConditionAnnotation;
-
 
 /**
  * The AsyncAppender lets users log events asynchronously.
@@ -159,20 +157,8 @@ public class AsyncAppender extends AppenderSkeleton
     if (locationInfo) {
       event.getLocationInformation();
     }
-    ConditionAnnotation c1=new ConditionAnnotation(buffer){
-
-		@Override
-		public boolean isConditionTrue() {
-			// TODO Auto-generated method stub
-			return ((List)o).size()>=bufferSize&&blocking
-	                && !Thread.interrupted()
-	                && Thread.currentThread() != dispatcher;
-		}
-    	
-    };
     synchronized (buffer) {
       while (true) {
-        c1.waitBegin(buffer);
     	  int previousSize = buffer.size();
         
         if (previousSize < bufferSize) {
@@ -186,7 +172,6 @@ public class AsyncAppender extends AppenderSkeleton
           if (previousSize == 0) {
             buffer.notifyAll();
           }
-          c1.waitEnd();
           break;
         }
 
@@ -209,11 +194,9 @@ public class AsyncAppender extends AppenderSkeleton
             //  reset interrupt status so
             //    calling code can see interrupt on
             //    their next wait or sleep.
-        	  c1.waitEnd();
             Thread.currentThread().interrupt();
           }
         }
-        c1.waitEnd();
 
         //
         //   if blocking is false or thread has been interrupted
@@ -531,20 +514,6 @@ public class AsyncAppender extends AppenderSkeleton
      */
     public void run() {
       boolean isActive = true;
-      ConditionAnnotation c1=new ConditionAnnotation(buffer){
-
-		@Override
-		public boolean isConditionTrue() {
-			int bufferSize;
-			boolean isActive;
-			synchronized(o){
-				bufferSize = ((List)o).size();
-	            isActive = !parent.closed;
-			}
-			return bufferSize==0&&isActive;
-		}
-    	  
-      };
       //
       //   if interrupted (unlikely), end thread
       //
@@ -562,13 +531,11 @@ public class AsyncAppender extends AppenderSkeleton
           synchronized (buffer) {
             int bufferSize = buffer.size();
             isActive = !parent.closed;
-            c1.waitBegin(buffer);
             while ((bufferSize == 0) && isActive) {
               buffer.wait();
               bufferSize = buffer.size();
               isActive = !parent.closed;
             }
-            c1.waitEnd();
             if (bufferSize > 0) {
               events = new LoggingEvent[bufferSize + discardMap.size()];
               buffer.toArray(events);

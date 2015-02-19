@@ -30,8 +30,6 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool.ObjectTimestampPair;
 
-import edu.sjtu.stap.checkmate.control.ConditionAnnotation;
-
 /**
  * A configurable {@link ObjectPool} implementation.
  * <p>
@@ -1306,17 +1304,10 @@ public class GenericObjectPool extends BaseObjectPool implements ObjectPool {
 			// instance creation permits in request arrival order
 			allocate();
 		}
-		ConditionAnnotation condition1 = new ConditionAnnotation(latch) {
-			public boolean isConditionTrue() {
-				return (((Latch) o).getPair() == null)
-						&& !((Latch) o).mayCreate();
-			}
-		};
 		for (;;) {
 			synchronized (this) {
 				assertOpen();
 			}
-			condition1.waitBegin(latch);
 			// If no object was allocated from the pool above
 			if (latch.getPair() == null) {
 				// check if we were allowed to create one
@@ -1357,16 +1348,13 @@ public class GenericObjectPool extends BaseObjectPool implements ObjectPool {
 							}
 						} catch (InterruptedException e) {
 							Thread.currentThread().interrupt();
-							condition1.waitEnd();
 							throw e;
 						}
 						if (maxWait > 0
 								&& ((System.currentTimeMillis() - starttime) >= maxWait)) {
-							condition1.waitEnd();
 							throw new NoSuchElementException(
 									"Timeout waiting for idle object");
 						} else {
-							condition1.waitEnd();
 							continue; // keep looping
 						}
 					default:
@@ -1377,7 +1365,6 @@ public class GenericObjectPool extends BaseObjectPool implements ObjectPool {
 					}
 				}
 			}
-			condition1.waitEnd();
 			boolean newlyCreated = false;
 			if (null == latch.getPair()) {
 				try {
@@ -1439,20 +1426,9 @@ public class GenericObjectPool extends BaseObjectPool implements ObjectPool {
 	private synchronized void allocate() {
 		if (isClosed())
 			return;
-		ConditionAnnotation c3 = new ConditionAnnotation(this) {
-			@Override
-			public boolean isConditionTrue() {
-				return !_pool.isEmpty() && !_allocationQueue.isEmpty();
-			}
-		};
-		boolean added = false;
 		// First use any objects in the pool to clear the queue
 		for (;;) {
 
-			if (!_allocationQueue.isEmpty()) {
-				c3.notifyBegin((Latch) _allocationQueue.getFirst());
-				added = true;
-			}
 			if (!_pool.isEmpty() && !_allocationQueue.isEmpty()) {
 				Latch latch = (Latch) _allocationQueue.removeFirst();
 				latch.setPair((ObjectTimestampPair) _pool.removeFirst());
@@ -1461,15 +1437,7 @@ public class GenericObjectPool extends BaseObjectPool implements ObjectPool {
 					latch.notify();
 				}
 			} else {
-				if (added) {
-					c3.notifyEnd();
-					added=false;
-				}
 				break;
-			}
-			if (added) {
-				c3.notifyEnd();
-				added=false;
 			}
 		}
 
