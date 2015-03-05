@@ -1,5 +1,0 @@
-fail.
-Report a false positive. The thread goes into wait is a daemon thread. JPF does not consider wait 
-in daemon thread can cause deadlock.
-But Checkmate does not consider daemon thread situation in its algorithm.
-If the daemon setting is added manually, JPF could not find the deadlock from the trace program.

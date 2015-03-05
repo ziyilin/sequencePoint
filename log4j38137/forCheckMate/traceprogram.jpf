@@ -1,6 +1,0 @@
-#--- dependencies on other JPF modules
-
-#--- what JPF should run
-target = TraceProgram
-classpath = .
-#--- other stuff that defines how to run JPF
