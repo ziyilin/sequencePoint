@@ -39,10 +39,10 @@ import org.junit.Test;
  * 
  * wait   org.apache.catalina.tribes.transport.RxTaskPool#getRxTask 
  * notify org.apache.catalina.tribes.transport.RxTaskPool#returnWorker
- * wait   org.apache.catalina.tribes.transport.PooledSender#getSender
- * notify org.apache.catalina.tribes.transport.PooledSender#open
- * notify org.apache.catalina.tribes.transport.PooledSender#close
- * notify org.apache.catalina.tribes.transport.PooledSender#returnSender
+ * wait   org.apache.catalina.tribes.transport.PooledSende$SenderQueuer#getSender
+ * notify org.apache.catalina.tribes.transport.PooledSende$SenderQueuer#open
+ * notify org.apache.catalina.tribes.transport.PooledSender$SenderQueue#close
+ * notify org.apache.catalina.tribes.transport.PooledSender$SenderQueue#returnSender
  * @Editor Ziyi Lin
  *
  */
