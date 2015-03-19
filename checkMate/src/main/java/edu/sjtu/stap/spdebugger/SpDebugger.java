@@ -1,0 +1,10 @@
+package edu.sjtu.stap.spdebugger;
+
+public class SpDebugger {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

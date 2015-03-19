@@ -1,4 +1,4 @@
-package edu.sjtu.stap.squencepoint.instrumentation;
+package edu.sjtu.stap.squencepoint.instrumentation.linebased;
 
 import java.util.Hashtable;
 import java.util.Properties;
@@ -60,12 +60,4 @@ public class LineBasedInstrumentor extends Instrumentor {
 		}
 		return classData;
 	}
-
-	private void generateTestData() {
-		// In Jar, Name=java.util.logging.Logger, SeqNumber = 4, Line = 495, tag
-		// = "4";
-		candidates.put("java.util.logging.Logger", new InstrumentInfo(
-				"java.util.logging.Logger", 4, 495, "4"));
-	}
-
 }

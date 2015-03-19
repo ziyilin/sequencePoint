@@ -12,6 +12,7 @@ import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.connect.Connector.StringArgument;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import sun.jvm.hotspot.jdi.SADebugServerAttachingConnector;
 
 public class JDIAttacher {
 

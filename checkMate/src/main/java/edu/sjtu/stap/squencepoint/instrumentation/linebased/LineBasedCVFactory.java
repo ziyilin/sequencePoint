@@ -1,4 +1,4 @@
-package edu.sjtu.stap.squencepoint.instrumentation;
+package edu.sjtu.stap.squencepoint.instrumentation.linebased;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;

@@ -30,10 +30,13 @@ public class ClassLoaderHelper {
 	}
 
 	private static void generateInstrumentor() {
-		String instumentorClass = prop.getProperty("instumentorClass");
+		String instrumentorClass = prop.getProperty("instumentorClass");
+		// No Instrumentor Class.
+		if (instrumentorClass == null)
+			return;
 		try {
 			Class<Instrumentor> clazz = (Class<Instrumentor>) Class
-					.forName(instumentorClass);
+					.forName(instrumentorClass);
 			Constructor<Instrumentor> con = clazz
 					.getConstructor(Properties.class);
 			instru = con.newInstance(prop);
