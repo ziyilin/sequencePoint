@@ -3,6 +3,7 @@ import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.io.PrintWriter;
 
 /**
@@ -24,11 +25,19 @@ public class EventThread extends Thread {
 	// Maps ThreadReference to ThreadTrace instances
 	private Map<ThreadReference, ThreadTrace> traceMap = new HashMap<>();
 
+	// Maps Class Name to Set of Fields Name
+	private Map<String, Set<String>> monitorMap= new HashMap<>();
+
 	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer) {
 		super("event-handler");
 		this.vm = vm;
 		this.excludes = excludes;
 		this.writer = writer;
+		
+		// Test Data, We want to monitor modifier in OneThreadDemo.class
+		Set<String> fieldSet = new HashSet<>();
+		fieldSet.add("modifier");
+		monitorMap.put("OneThreadDemo", fieldSet);
 	}
 
 	/**
@@ -97,9 +106,23 @@ public class EventThread extends Thread {
 			for (int i = 0; i < excludes.length; ++i) {
 				cpr.addClassExclusionFilter(excludes[i]);
 			}
+			// Monitor the given classes
+			for (Entry<String, Set<String>> monitorClass : monitorMap.entrySet()) {
+				System.out.println("Log: " +monitorClass.getKey());
+				cpr.addClassFilter(monitorClass.getKey());
+			}
 			cpr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
 			cpr.enable();
 		}
+		
+		/*if (watchFields) {
+            ClassPrepareRequest cpr = mgr.createClassPrepareRequest();
+            for (int i=0; i<excludes.length; ++i) {
+                cpr.addClassExclusionFilter(excludes[i]);
+            }
+            cpr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+            cpr.enable();
+        } */
 	}
 
 	/**
@@ -118,6 +141,7 @@ public class EventThread extends Thread {
 			indent = new StringBuffer(baseIndent);
 			nextBaseIndent += threadDelta;
 			println("====== " + thread.name() + " ======");
+			// System.out.println("Log: " + this.thread.name());
 		}
 
 		private void println(String str) {
@@ -147,7 +171,7 @@ public class EventThread extends Thread {
 		void fieldWatchEvent(ModificationWatchpointEvent event) {
 			Field field = event.field();
 			Value value = event.valueToBe();
-			println("    " + field.name() + " = " + value);
+			println("    " + field.name() + "From" + event.valueCurrent()+ " to be " + value);
 		}
 
 		void exceptionEvent(ExceptionEvent event) {
@@ -296,7 +320,21 @@ public class EventThread extends Thread {
 	 * A new class has been loaded. Set watchpoints on each of its fields
 	 */
 	private void classPrepareEvent(ClassPrepareEvent event) {
-		EventRequestManager mgr = vm.eventRequestManager();
+		// Monitor the fields we care, for example, Sequence Point
+        ReferenceType refType = event.referenceType();
+        EventRequestManager erm = vm.eventRequestManager();
+        System.out.println("Log: "+ event.thread().name());
+		Set<String> classNameList = monitorMap.get(event.thread().name());
+		if (classNameList == null) return;
+		/* There is a bug */
+		for (String fieldName : classNameList) {
+			Field field = refType.fieldByName(fieldName);
+			ModificationWatchpointRequest modificationWatchpointRequest = erm
+					.createModificationWatchpointRequest(field);
+			modificationWatchpointRequest.setEnabled(true);
+		}
+
+        /*EventRequestManager mgr = vm.eventRequestManager();
 		List<Field> fields = event.referenceType().visibleFields();
 		for (Field field : fields) {
 			ModificationWatchpointRequest req = mgr
@@ -306,7 +344,7 @@ public class EventThread extends Thread {
 			}
 			req.setSuspendPolicy(EventRequest.SUSPEND_NONE);
 			req.enable();
-		}
+		}*/
 	}
 
 	private void exceptionEvent(ExceptionEvent event) {

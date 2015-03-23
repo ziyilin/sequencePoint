@@ -22,10 +22,10 @@ public class Debugger {
     private Thread outThread = null;
 
     // Mode for tracing the Trace program
-    private int debugTraceMode = VirtualMachine.TRACE_ALL;
+    private int debugTraceMode = 0;//VirtualMachine.TRACE_ALL;
 
     //  Do we want to watch assignments to fields
-    private boolean watchFields = false;
+    private boolean watchFields = true;
 
     // Class patterns for which we don't want events
     private String[] excludes = {"java.*", "javax.*", "sun.*", "com.sun.*"};
