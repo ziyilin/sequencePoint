@@ -40,7 +40,15 @@ public class OneThreadDemo {
 	}
 
 	public static void main(String[] args) {
-		Thread.currentThread().setName("OneThreadDemo");
+		//Thread.currentThread().setName("OneThreadDemo");
+		Thread t1=Thread.currentThread();
+		System.out.println(t1.getName());
+		Thread t=new Thread(){
+			public void run(){
+				
+			}
+		};
+		t.start();
 		OneThreadDemo demo = new OneThreadDemo();
 		demo.startThread();
 	}

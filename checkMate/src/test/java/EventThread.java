@@ -4,6 +4,7 @@ import com.sun.jdi.event.*;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.io.PrintWriter;
 
 /**
@@ -26,7 +27,8 @@ public class EventThread extends Thread {
 	private Map<ThreadReference, ThreadTrace> traceMap = new HashMap<>();
 
 	// Maps Class Name to Set of Fields Name
-	private Map<String, Set<String>> monitorMap= new HashMap<>();
+	private Map<String, Set<String>> monitorMap = new ConcurrentHashMap<>();
+	public static int sequencePoint = 0;
 
 	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer) {
 		super("event-handler");
@@ -37,6 +39,7 @@ public class EventThread extends Thread {
 		// Test Data, We want to monitor modifier in OneThreadDemo.class
 		Set<String> fieldSet = new HashSet<>();
 		fieldSet.add("modifier");
+		// Assume we will monitor main thread in OneThreadDemo.class.
 		monitorMap.put("OneThreadDemo", fieldSet);
 	}
 
@@ -169,9 +172,24 @@ public class EventThread extends Thread {
 		}
 
 		void fieldWatchEvent(ModificationWatchpointEvent event) {
+			System.out.println("thread.name=" + thread.name()
+					+ ". SequencePoint = " + sequencePoint);
+			if (thread.name().equals("T") && sequencePoint == 0) {
+				sequencePoint++;
+				thread.suspend();
+			} else {
+				sequencePoint++;
+				List<ThreadReference> threadList = vm.allThreads();
+				for (ThreadReference threadR : threadList) {
+					if (threadR.isSuspended()) {
+						threadR.resume();
+					}
+				}
+			}
 			Field field = event.field();
 			Value value = event.valueToBe();
-			println("    " + field.name() + "From" + event.valueCurrent()+ " to be " + value);
+			println("In thread " + thread.name() + ", " + field.name()
+					+ " from " + event.valueCurrent() + " to be " + value);
 		}
 
 		void exceptionEvent(ExceptionEvent event) {
@@ -323,15 +341,18 @@ public class EventThread extends Thread {
 		// Monitor the fields we care, for example, Sequence Point
         ReferenceType refType = event.referenceType();
         EventRequestManager erm = vm.eventRequestManager();
-        System.out.println("Log: "+ event.thread().name());
-		Set<String> classNameList = monitorMap.get(event.thread().name());
+        System.out.println("Log2: "+ event.thread().name());
+		Set<String> classNameList = monitorMap.keySet();
 		if (classNameList == null) return;
 		/* There is a bug */
-		for (String fieldName : classNameList) {
-			Field field = refType.fieldByName(fieldName);
-			ModificationWatchpointRequest modificationWatchpointRequest = erm
-					.createModificationWatchpointRequest(field);
-			modificationWatchpointRequest.setEnabled(true);
+		for (String className : classNameList) {
+			Set<String> fieldList = monitorMap.get(className);
+			for (String fieldName : fieldList) {
+				Field field = refType.fieldByName(fieldName);
+				ModificationWatchpointRequest modificationWatchpointRequest = erm
+						.createModificationWatchpointRequest(field);
+				modificationWatchpointRequest.setEnabled(true);
+			}
 		}
 
         /*EventRequestManager mgr = vm.eventRequestManager();
