@@ -24,12 +24,11 @@ public class Debugger {
     // Mode for tracing the Trace program
     private int debugTraceMode = 0;//VirtualMachine.TRACE_ALL;
 
-    //  Do we want to watch assignments to fields
-    private boolean watchFields = true;
-
     // Class patterns for which we don't want events
     private String[] excludes = {"java.*", "javax.*", "sun.*", "com.sun.*"};
 
+    private String applicationName;
+    
     public static void main(String[] args) {
         new Debugger(args);
     }
@@ -62,6 +61,7 @@ public class Debugger {
         }
         StringBuffer sb = new StringBuffer();
         sb.append(args[inx]);
+        applicationName = args[inx];
         for (++inx; inx < args.length; ++inx) {
             sb.append(' ');
             sb.append(args[inx]);
@@ -72,8 +72,8 @@ public class Debugger {
 
     void generateTrace(PrintWriter writer) {
         vm.setDebugTraceMode(debugTraceMode);
-        EventThread eventThread = new EventThread(vm, excludes, writer);
-        eventThread.setEventRequests(watchFields);
+        EventThread eventThread = new EventThread(vm, excludes, writer, applicationName);
+
         eventThread.start();
         redirectOutput();
         vm.resume();
@@ -143,15 +143,6 @@ public class Debugger {
         }
         mainArg.setValue(mainArgs);
 
-        if (watchFields) {
-            // We need a VM that supports watchpoints
-            Connector.Argument optionArg =
-                (Connector.Argument)arguments.get("options");
-            if (optionArg == null) {
-                throw new Error("Bad launching connector");
-            }
-            optionArg.setValue("-classic");
-        }
         return arguments;
     }
 }

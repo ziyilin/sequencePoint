@@ -26,21 +26,21 @@ public class EventThread extends Thread {
 	// Maps ThreadReference to ThreadTrace instances
 	private Map<ThreadReference, ThreadTrace> traceMap = new HashMap<>();
 
-	// Maps Class Name to Set of Fields Name
-	private Map<String, Set<String>> monitorMap = new ConcurrentHashMap<>();
+	// Monitor Map
+	private Map<Integer, String> monitorMap;
+	private String applicationName, mapName = "MonitorThreadMap";
 	public static int sequencePoint = 0;
 
-	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer) {
+	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer, String applicationName) {
 		super("event-handler");
 		this.vm = vm;
 		this.excludes = excludes;
 		this.writer = writer;
-		
-		// Test Data, We want to monitor modifier in OneThreadDemo.class
-		Set<String> fieldSet = new HashSet<>();
-		fieldSet.add("modifier");
-		// Assume we will monitor main thread in OneThreadDemo.class.
-		monitorMap.put("OneThreadDemo", fieldSet);
+		this.applicationName = applicationName;
+        
+		this.setEventRequests(true);
+
+		// Assume we will monitor the MonitorMap in OneThreadDemo.class.
 	}
 
 	/**
@@ -110,11 +110,8 @@ public class EventThread extends Thread {
 				cpr.addClassExclusionFilter(excludes[i]);
 			}
 			// Monitor the given classes
-			for (Entry<String, Set<String>> monitorClass : monitorMap.entrySet()) {
-				System.out.println("Log: " +monitorClass.getKey());
-				cpr.addClassFilter(monitorClass.getKey());
-			}
-			cpr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+			cpr.addClassFilter(applicationName);
+			cpr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
 			cpr.enable();
 		}
 		
@@ -234,6 +231,7 @@ public class EventThread extends Thread {
 	 */
 	ThreadTrace threadTrace(ThreadReference thread) {
 		ThreadTrace trace = traceMap.get(thread);
+		System.out.println(thread.name() + thread.hashCode());
 		if (trace == null) {
 			trace = new ThreadTrace(thread);
 			traceMap.put(thread, trace);
@@ -339,21 +337,14 @@ public class EventThread extends Thread {
 	 */
 	private void classPrepareEvent(ClassPrepareEvent event) {
 		// Monitor the fields we care, for example, Sequence Point
-        ReferenceType refType = event.referenceType();
-        EventRequestManager erm = vm.eventRequestManager();
-        System.out.println("Log2: "+ event.thread().name());
-		Set<String> classNameList = monitorMap.keySet();
-		if (classNameList == null) return;
-		/* There is a bug */
-		for (String className : classNameList) {
-			Set<String> fieldList = monitorMap.get(className);
-			for (String fieldName : fieldList) {
-				Field field = refType.fieldByName(fieldName);
-				ModificationWatchpointRequest modificationWatchpointRequest = erm
-						.createModificationWatchpointRequest(field);
-				modificationWatchpointRequest.setEnabled(true);
-			}
-		}
+		ReferenceType refType = event.referenceType();
+		EventRequestManager erm = vm.eventRequestManager();
+		// System.out.println("Log2: " + event.thread().hashCode());
+
+		Field field = refType.fieldByName(mapName);
+		ModificationWatchpointRequest modificationWatchpointRequest = erm
+				.createModificationWatchpointRequest(field);
+		modificationWatchpointRequest.setEnabled(true);
 
         /*EventRequestManager mgr = vm.eventRequestManager();
 		List<Field> fields = event.referenceType().visibleFields();
