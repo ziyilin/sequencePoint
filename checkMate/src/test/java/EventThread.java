@@ -26,10 +26,10 @@ public class EventThread extends Thread {
 	// Maps ThreadReference to ThreadTrace instances
 	private Map<ThreadReference, ThreadTrace> traceMap = new HashMap<>();
 
-	// Monitor Map
-	private Map<Integer, String> monitorMap;
-	private String applicationName, mapName = "MonitorThreadMap";
-	public static int sequencePoint = 0;
+	// Monitor Map, which maps Sequence Point to ThreadReference
+	private Map<Integer, ThreadReference> monitorMap = new ConcurrentHashMap<>();
+	private String applicationName, mapName = "SP";
+	private static int currentSP = 0;
 
 	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer, String applicationName) {
 		super("event-handler");
@@ -169,22 +169,21 @@ public class EventThread extends Thread {
 		}
 
 		void fieldWatchEvent(ModificationWatchpointEvent event) {
-			System.out.println("thread.name=" + thread.name()
-					+ ". SequencePoint = " + sequencePoint);
-			if (thread.name().equals("T") && sequencePoint == 0) {
-				sequencePoint++;
-				thread.suspend();
-			} else {
-				sequencePoint++;
-				List<ThreadReference> threadList = vm.allThreads();
-				for (ThreadReference threadR : threadList) {
-					if (threadR.isSuspended()) {
-						threadR.resume();
-					}
-				}
-			}
+			System.out.println("thread.name=" + thread.name());
+//			if (thread.name().equals("T")) {
+//				thread.suspend();
+//			} else {
+//				List<ThreadReference> threadList = vm.allThreads();
+//				for (ThreadReference threadR : threadList) {
+//					if (threadR.isSuspended()) {
+//						threadR.resume();
+//					}
+//				}
+//			}
 			Field field = event.field();
 			Value value = event.valueToBe();
+			System.out.println("Value:" + value.toString());
+			monitorMap.put(Integer.valueOf(value.toString()), event.thread());
 			println("In thread " + thread.name() + ", " + field.name()
 					+ " from " + event.valueCurrent() + " to be " + value);
 		}
