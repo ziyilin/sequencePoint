@@ -29,7 +29,7 @@ public class EventThread extends Thread {
 	// Monitor Map, which maps Sequence Point to ThreadReference
 	private Map<Integer, ThreadReference> monitorMap = new ConcurrentHashMap<>();
 	private String applicationName, mapName = "SP";
-	private static int currentSP = 0;
+	private static int currentSP = 1;
 
 	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer, String applicationName) {
 		super("event-handler");
@@ -169,23 +169,31 @@ public class EventThread extends Thread {
 		}
 
 		void fieldWatchEvent(ModificationWatchpointEvent event) {
-			System.out.println("thread.name=" + thread.name());
-//			if (thread.name().equals("T")) {
-//				thread.suspend();
-//			} else {
-//				List<ThreadReference> threadList = vm.allThreads();
-//				for (ThreadReference threadR : threadList) {
-//					if (threadR.isSuspended()) {
-//						threadR.resume();
-//					}
-//				}
-//			}
 			Field field = event.field();
 			Value value = event.valueToBe();
 			System.out.println("Value:" + value.toString());
-			monitorMap.put(Integer.valueOf(value.toString()), event.thread());
 			println("In thread " + thread.name() + ", " + field.name()
 					+ " from " + event.valueCurrent() + " to be " + value);
+			if (Integer.valueOf(value.toString()) == currentSP) {
+				notifySuspendedThread();
+			} else {
+				event.thread().suspend();
+				println("Suspend Thread " + event.thread().name());
+				monitorMap.put(Integer.valueOf(value.toString()), event.thread()); 
+			}
+		}
+
+		// Notify suspended thread with the next SequencePoint to resume.
+		private void notifySuspendedThread() {
+			if ( monitorMap.containsKey(++currentSP)) {
+				 ThreadReference threadReference = monitorMap.get(currentSP);
+				 if ( threadReference.isSuspended() ) {
+					 threadReference.resume();
+					 println("Resume Thread " + threadReference.name());
+					 monitorMap.remove(currentSP);
+					 notifySuspendedThread();
+				 }
+			}
 		}
 
 		void exceptionEvent(ExceptionEvent event) {
