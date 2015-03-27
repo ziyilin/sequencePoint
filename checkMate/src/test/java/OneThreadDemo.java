@@ -19,16 +19,16 @@ public class OneThreadDemo {
 		t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				modifier = t.getName();
 				// Insert Sequence Point Here,
 				// Sp@Site@Thread(Debug_Name)=1@(11,17)@t
 				if (ThreadSequenceMap.containsKey(Thread.currentThread()
 						.hashCode()))
 					SP = ThreadSequenceMap.get(Thread.currentThread()
 							.hashCode());
+				modifier = t.getName();
 			}
 		});
-		// Thread t, sp = 1;
+		// Thread t, sp = 2;
 		ThreadSequenceMap.put(t.hashCode(), 2);
 	}
 
@@ -37,9 +37,11 @@ public class OneThreadDemo {
 
 		t.start();
 
+		modifier = getClass().getSimpleName();
+
 		if (ThreadSequenceMap.containsKey(Thread.currentThread().hashCode()))
 			SP = ThreadSequenceMap.get(Thread.currentThread().hashCode());
-		modifier = getClass().getSimpleName();
+	
 		try {
 			t.join();
 		} catch (InterruptedException e) {

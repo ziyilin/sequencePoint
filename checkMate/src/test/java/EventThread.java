@@ -99,6 +99,10 @@ public class EventThread extends Thread {
 		mexr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
 		mexr.enable();
 
+		ThreadStartRequest tsr = mgr.createThreadStartRequest();
+		tsr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+		tsr.enable();
+		
 		ThreadDeathRequest tdr = mgr.createThreadDeathRequest();
 		// Make sure we sync on thread death
 		tdr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
@@ -352,18 +356,6 @@ public class EventThread extends Thread {
 		ModificationWatchpointRequest modificationWatchpointRequest = erm
 				.createModificationWatchpointRequest(field);
 		modificationWatchpointRequest.setEnabled(true);
-
-        /*EventRequestManager mgr = vm.eventRequestManager();
-		List<Field> fields = event.referenceType().visibleFields();
-		for (Field field : fields) {
-			ModificationWatchpointRequest req = mgr
-					.createModificationWatchpointRequest(field);
-			for (int i = 0; i < excludes.length; ++i) {
-				req.addClassExclusionFilter(excludes[i]);
-			}
-			req.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-			req.enable();
-		}*/
 	}
 
 	private void exceptionEvent(ExceptionEvent event) {
