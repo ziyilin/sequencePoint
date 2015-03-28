@@ -1,3 +1,4 @@
+package edu.sjtu.stap.sample.debugger.sample;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.Bootstrap;
 import com.sun.jdi.connect.*;
@@ -138,6 +139,11 @@ public class Debugger {
         Map<String, Connector.Argument> arguments = connector.defaultArguments();
         Connector.Argument mainArg =
                            (Connector.Argument)arguments.get("main");
+        
+        // Specify the class path. Currently, it only can be default package.
+        Connector.Argument options =(Connector.Argument)arguments.get("options");
+        options.setValue("-cp \"D:\\Workspace\\sqDev\\sequencePoint\\checkMate\\target\\test-classes\"");
+
         if (mainArg == null) {
             throw new Error("Bad launching connector");
         }

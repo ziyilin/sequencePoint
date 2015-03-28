@@ -1,3 +1,4 @@
+package edu.sjtu.stap.sample.debugger.sample;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;

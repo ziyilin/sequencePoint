@@ -1,3 +1,4 @@
+package edu.sjtu.stap.sample.debugger.sample;
 import java.io.*;
 
 /**
