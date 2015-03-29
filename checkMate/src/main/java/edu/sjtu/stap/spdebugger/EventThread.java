@@ -1,4 +1,4 @@
-package edu.sjtu.stap.sample.debugger.sample;
+package edu.sjtu.stap.spdebugger;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
@@ -146,7 +146,6 @@ public class EventThread extends Thread {
 			indent = new StringBuffer(baseIndent);
 			nextBaseIndent += threadDelta;
 			println("====== " + thread.name() + " ======");
-			// System.out.println("Log: " + this.thread.name());
 		}
 
 		private void println(String str) {
@@ -164,8 +163,6 @@ public class EventThread extends Thread {
 		}
 
 		void methodEntryEvent(MethodEntryEvent event) {
-			println(event.method().name() + "  --  "
-					+ event.method().declaringType().name());
 			indent.append("| ");
 		}
 
@@ -176,7 +173,6 @@ public class EventThread extends Thread {
 		void fieldWatchEvent(ModificationWatchpointEvent event) {
 			Field field = event.field();
 			Value value = event.valueToBe();
-			System.out.println("Value:" + value.toString());
 			println("In thread " + thread.name() + ", " + field.name()
 					+ " from " + event.valueCurrent() + " to be " + value);
 			if (Integer.valueOf(value.toString()) == currentSP) {
@@ -202,33 +198,10 @@ public class EventThread extends Thread {
 		}
 
 		void exceptionEvent(ExceptionEvent event) {
-			println("Exception: " + event.exception() + " catch: "
-					+ event.catchLocation());
-
-			// Step to the catch
-			EventRequestManager mgr = vm.eventRequestManager();
-			StepRequest req = mgr.createStepRequest(thread,
-					StepRequest.STEP_MIN, StepRequest.STEP_INTO);
-			req.addCountFilter(1); // next step only
-			req.setSuspendPolicy(EventRequest.SUSPEND_ALL);
-			req.enable();
 		}
 
 		// Step to exception catch
 		void stepEvent(StepEvent event) {
-			// Adjust call depth
-			int cnt = 0;
-			indent = new StringBuffer(baseIndent);
-			try {
-				cnt = thread.frameCount();
-			} catch (IncompatibleThreadStateException exc) {
-			}
-			while (cnt-- > 0) {
-				indent.append("| ");
-			}
-
-			EventRequestManager mgr = vm.eventRequestManager();
-			mgr.deleteEventRequest(event.request());
 		}
 
 		void threadDeathEvent(ThreadDeathEvent event) {
@@ -243,7 +216,6 @@ public class EventThread extends Thread {
 	 */
 	ThreadTrace threadTrace(ThreadReference thread) {
 		ThreadTrace trace = traceMap.get(thread);
-		System.out.println(thread.name() + thread.hashCode());
 		if (trace == null) {
 			trace = new ThreadTrace(thread);
 			traceMap.put(thread, trace);

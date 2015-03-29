@@ -1,4 +1,4 @@
-package edu.sjtu.stap.sample.debugger.sample;
+package edu.sjtu.stap.spdebugger;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.Bootstrap;
 import com.sun.jdi.connect.*;
@@ -23,11 +23,12 @@ public class Debugger {
     private Thread outThread = null;
 
     // Mode for tracing the Trace program
-    private int debugTraceMode = 0;//VirtualMachine.TRACE_ALL;
+    private int debugTraceMode = 0; // VirtualMachine.TRACE_ALL;
 
     // Class patterns for which we don't want events
     private String[] excludes = {"java.*", "javax.*", "sun.*", "com.sun.*"};
 
+    // Application Name for debugging
     private String applicationName;
     
     public static void main(String[] args) {
@@ -35,7 +36,7 @@ public class Debugger {
     }
 
     /**
-     * Parse the command line arguments.
+     * -output <File> <mainClass>
      * Launch target VM.
      */
     Debugger(String[] args) {
@@ -143,6 +144,7 @@ public class Debugger {
         // Specify the class path. Currently, it only can be default package.
         Connector.Argument options =(Connector.Argument)arguments.get("options");
         options.setValue("-cp \"D:\\Workspace\\sqDev\\sequencePoint\\checkMate\\target\\test-classes\"");
+//        options.setValue("-D -Djava.system.class.loader=edu.sjtu.stap.checkmate.loadclass.CustomClassLoader");
 
         if (mainArg == null) {
             throw new Error("Bad launching connector");

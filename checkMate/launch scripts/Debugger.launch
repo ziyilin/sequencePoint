@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/checkMate/src/test/java/edu/sjtu/stap/sample/debugger/sample/Debugger.java"/>
+<listEntry value="/checkMate/src/main/java/edu/sjtu/stap/spdebugger/Debugger.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
-<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.sjtu.stap.sample.debugger.sample.Debugger"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.sjtu.stap.spdebugger.Debugger"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-output D:/test.log OneThreadDemo"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="checkMate"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>

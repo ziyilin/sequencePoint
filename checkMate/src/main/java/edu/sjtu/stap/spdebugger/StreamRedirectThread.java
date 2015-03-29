@@ -1,4 +1,4 @@
-package edu.sjtu.stap.sample.debugger.sample;
+package edu.sjtu.stap.spdebugger;
 import java.io.*;
 
 /**
