@@ -20,12 +20,12 @@ public class OneThreadDemo {
 			public void run() {
 				// Insert Sequence Point Here,
 				// Sp@Site@Thread(Debug_Name)=1@(11,17)@t
-				SpMap.checkThread();
+				SpMap.checkThread(2);
 				modifier = t.getName();
 			}
 		});
 		// Thread t, sp = 2;
-		SpMap.insertSP(t.hashCode(), 2);
+		SpMap.insertSP(2, t.hashCode());
 	}
 
 	public void startThread() {
@@ -35,7 +35,7 @@ public class OneThreadDemo {
 
 		modifier = getClass().getSimpleName();
 		
-		SpMap.checkThread();
+		SpMap.checkThread(1);
 	
 		try {
 			t.join();
@@ -48,7 +48,7 @@ public class OneThreadDemo {
 
 	public static void main(String[] args) {
 		// main thread, sp = 2;
-		SpMap.insertSP(Thread.currentThread().hashCode(), 1);
+		SpMap.insertSP(1, Thread.currentThread().hashCode());
 
 		Thread.currentThread().setName("OneThreadDemo");
 
