@@ -1,4 +1,4 @@
-package edu.sjtu.stap.spdebugger;
+package edu.sjtu.stap.checkmate.spdebugger;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.Bootstrap;
 import com.sun.jdi.connect.*;

@@ -12,8 +12,6 @@ public class OneThreadDemo {
 	private String modifier;
 	// Need instrumentation.
 	// Insert MonitorThreadMap, which maps Thread.hashCode to sequence point
-	public static Map<Integer, Integer> ThreadSequenceMap = new ConcurrentHashMap<>();
-	public static int SP = 0;
 
 	public OneThreadDemo() {
 		// Declaration here
@@ -22,15 +20,12 @@ public class OneThreadDemo {
 			public void run() {
 				// Insert Sequence Point Here,
 				// Sp@Site@Thread(Debug_Name)=1@(11,17)@t
-				if (ThreadSequenceMap.containsKey(Thread.currentThread()
-						.hashCode()))
-					SP = ThreadSequenceMap.get(Thread.currentThread()
-							.hashCode());
+				SpMap.checkThread();
 				modifier = t.getName();
 			}
 		});
 		// Thread t, sp = 2;
-		ThreadSequenceMap.put(t.hashCode(), 2);
+		SpMap.insertSP(t.hashCode(), 2);
 	}
 
 	public void startThread() {
@@ -39,9 +34,8 @@ public class OneThreadDemo {
 		t.start();
 
 		modifier = getClass().getSimpleName();
-
-		if (ThreadSequenceMap.containsKey(Thread.currentThread().hashCode()))
-			SP = ThreadSequenceMap.get(Thread.currentThread().hashCode());
+		
+		SpMap.checkThread();
 	
 		try {
 			t.join();
@@ -54,7 +48,7 @@ public class OneThreadDemo {
 
 	public static void main(String[] args) {
 		// main thread, sp = 2;
-		ThreadSequenceMap.put(Thread.currentThread().hashCode(), 1);
+		SpMap.insertSP(Thread.currentThread().hashCode(), 1);
 
 		Thread.currentThread().setName("OneThreadDemo");
 

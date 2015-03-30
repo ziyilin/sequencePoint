@@ -1,4 +1,4 @@
-package edu.sjtu.stap.spdebugger;
+package edu.sjtu.stap.checkmate.spdebugger;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
@@ -37,7 +37,7 @@ public class EventThread extends Thread {
 		this.vm = vm;
 		this.excludes = excludes;
 		this.writer = writer;
-		this.applicationName = applicationName;
+		this.applicationName = "SpMap"; //applicationName;
         
 		this.setEventRequests(true);
 
