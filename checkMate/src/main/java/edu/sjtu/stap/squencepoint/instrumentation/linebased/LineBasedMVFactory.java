@@ -1,24 +1,28 @@
 package edu.sjtu.stap.squencepoint.instrumentation.linebased;
 
+import java.util.Map;
+import java.util.SortedSet;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import edu.sjtu.stap.checkmate.framework.instrument.CodeTemplate;
 import edu.sjtu.stap.checkmate.framework.instrument.CustomizedMethodVisitor;
+import edu.sjtu.stap.checkmate.framework.instrument.InstrumentInfo;
 import edu.sjtu.stap.checkmate.framework.instrument.MvFactory;
 
 public class LineBasedMVFactory implements MvFactory {
 
-	private int line;
+	private Map<Integer, SortedSet<InstrumentInfo>> lineMap;
 
-	public LineBasedMVFactory(int line) {
-		this.line = line;
+	public LineBasedMVFactory(Map<Integer, SortedSet<InstrumentInfo>> lineMap) {
+		this.lineMap = lineMap;
 	}
 
 	@Override
 	public MethodVisitor generateMethodVisitor(MethodVisitor mv, String name,
 			String desc) {
-		return new LineBasedMV(mv, line);
+		return new LineBasedMV(mv, 0);
 	}
 
 }

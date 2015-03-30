@@ -1,7 +1,3 @@
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * 
  * @author Yilei
@@ -52,13 +48,15 @@ public class OneThreadDemo {
 
 		Thread.currentThread().setName("OneThreadDemo");
 
-		Thread t = new Thread() {
+		new Thread() {
 			@Override
 			public void run() {
+				SpMap.insertSP(3, Thread.currentThread().hashCode());
+				SpMap.checkThread(3);
+
 				System.out.println("Test Anonymous Thread.");
 			}
-		};
-		t.start();
+		}.start();
 
 		OneThreadDemo demo = new OneThreadDemo();
 		demo.startThread();
