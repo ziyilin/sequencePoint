@@ -3,60 +3,57 @@ package edu.sjtu.stap.checkmate.framework.instrument;
 /**
  * 
  * @author Yilei
- *
+ * 
  */
-public class InstrumentInfo {
-	// Full Qualified Name, Identify the Class
-	private String className;
+public class InstrumentInfo implements Comparable {
+	private int column, sp;
+	private String type, instance;
 
-	// Sequence Number
-	private int seqNumber;
-
-	// Sequence point location;
-	private int lines;
-
-	// Thread Tag, number, color, etc.
-	private String threadTag;
-
-	// Extension
-
-	public InstrumentInfo(String className, int seqNumber, int lines,
-			String threadTag) {
-		this.className = className;
-		this.seqNumber = seqNumber;
-		this.lines = lines;
-		this.threadTag = threadTag;
+	public InstrumentInfo(int column, String type, int sp, String instance) {
+		this.column = column;
+		this.sp = sp;
+		this.type = type;
+		this.instance = instance;
 	}
 
-	public String getClassName() {
-		return className;
+	public int getColumn() {
+		return column;
 	}
 
-	public void setClassName(String className) {
-		this.className = className;
+	public void setColumn(int column) {
+		this.column = column;
 	}
 
-	public int getSeqNumber() {
-		return seqNumber;
+	public int getSp() {
+		return sp;
 	}
 
-	public void setSeqNumber(int seqNumber) {
-		this.seqNumber = seqNumber;
+	public void setSp(int sp) {
+		this.sp = sp;
 	}
 
-	public int getLines() {
-		return lines;
+	public String getType() {
+		return type;
 	}
 
-	public void setLines(int lines) {
-		this.lines = lines;
+	public void setType(String type) {
+		this.type = type;
 	}
 
-	public String getThreadTag() {
-		return threadTag;
+	public String getInstance() {
+		return instance;
 	}
 
-	public void setThreadTag(String threadTag) {
-		this.threadTag = threadTag;
+	public void setInstance(String instance) {
+		this.instance = instance;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		InstrumentInfo ii = (InstrumentInfo) o;
+		if (this.column == ii.getColumn())
+			return 0;
+		else
+			return this.column < ii.getColumn() ? -1 : 1;
 	}
 }

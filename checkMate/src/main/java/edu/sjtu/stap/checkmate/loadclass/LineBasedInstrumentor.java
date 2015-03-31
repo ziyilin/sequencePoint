@@ -1,8 +1,9 @@
-package edu.sjtu.stap.squencepoint.instrumentation.linebased;
+package edu.sjtu.stap.checkmate.loadclass;
 
 import java.util.Map;
 import java.util.Properties;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.objectweb.asm.ClassReader;
@@ -39,6 +40,10 @@ public class LineBasedInstrumentor extends Instrumentor {
 			String name = properties.getProperty(prefix + classIndex + ".name");
 			int insNum = Integer.parseInt(properties.getProperty(prefix
 					+ classIndex + ".num"));
+			Map<Integer, SortedSet<InstrumentInfo>> spMap = candidates
+					.get(name);
+			if (spMap == null)
+				spMap = new ConcurrentHashMap<>();
 			for (int insIndex = 0; insIndex < insNum; insIndex++) {
 				String site = properties.getProperty(prefix + classIndex + "."
 						+ insIndex + ".site");
@@ -52,11 +57,16 @@ public class LineBasedInstrumentor extends Instrumentor {
 						+ classIndex + "." + insIndex + ".sp"));
 				String instance = properties.getProperty(prefix + classIndex
 						+ "." + insIndex + ".instance");
-
-				// candidates.put(name,
-				// new InstrumentInfo(name,id,lineNumber,tag));
-
+				System.out.println("line:" + line + ", column:" + column
+						+ ", type:" + type + ", sp:" + sp + ", instance:"
+						+ instance);
+				SortedSet<InstrumentInfo> infoSet = spMap.get(line);
+				if (infoSet == null)
+					infoSet = new TreeSet<InstrumentInfo>();
+				infoSet.add(new InstrumentInfo(column, type, sp, instance));
+				spMap.put(line, infoSet);
 			}
+			candidates.put(name, spMap);
 		}
 	}
 

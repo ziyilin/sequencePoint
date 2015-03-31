@@ -22,6 +22,7 @@ public class OneThreadDemo {
 		});
 		// Thread t, sp = 2;
 		SpMap.insertSP(2, t.hashCode());
+
 	}
 
 	public void startThread() {
@@ -43,7 +44,7 @@ public class OneThreadDemo {
 	}
 
 	public static void main(String[] args) {
-		// main thread, sp = 2;
+		// main thread, sp = 1;
 		SpMap.insertSP(1, Thread.currentThread().hashCode());
 
 		Thread.currentThread().setName("OneThreadDemo");

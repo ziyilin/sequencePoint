@@ -1,4 +1,5 @@
 package edu.sjtu.stap.checkmate.spdebugger;
+
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
@@ -32,13 +33,14 @@ public class EventThread extends Thread {
 	private String applicationName, mapName = "SP";
 	private static int currentSP = 1;
 
-	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer, String applicationName) {
+	EventThread(VirtualMachine vm, String[] excludes, PrintWriter writer,
+			String applicationName) {
 		super("event-handler");
 		this.vm = vm;
 		this.excludes = excludes;
 		this.writer = writer;
-		this.applicationName = "SpMap"; //applicationName;
-        
+		this.applicationName = "SpMap"; // applicationName;
+
 		this.setEventRequests(true);
 
 		// Assume we will monitor the MonitorMap in OneThreadDemo.class.
@@ -103,7 +105,7 @@ public class EventThread extends Thread {
 		ThreadStartRequest tsr = mgr.createThreadStartRequest();
 		tsr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
 		tsr.enable();
-		
+
 		ThreadDeathRequest tdr = mgr.createThreadDeathRequest();
 		// Make sure we sync on thread death
 		tdr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
@@ -119,15 +121,13 @@ public class EventThread extends Thread {
 			cpr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
 			cpr.enable();
 		}
-		
-		/*if (watchFields) {
-            ClassPrepareRequest cpr = mgr.createClassPrepareRequest();
-            for (int i=0; i<excludes.length; ++i) {
-                cpr.addClassExclusionFilter(excludes[i]);
-            }
-            cpr.setSuspendPolicy(EventRequest.SUSPEND_ALL);
-            cpr.enable();
-        } */
+
+		/*
+		 * if (watchFields) { ClassPrepareRequest cpr =
+		 * mgr.createClassPrepareRequest(); for (int i=0; i<excludes.length;
+		 * ++i) { cpr.addClassExclusionFilter(excludes[i]); }
+		 * cpr.setSuspendPolicy(EventRequest.SUSPEND_ALL); cpr.enable(); }
+		 */
 	}
 
 	/**
@@ -180,24 +180,27 @@ public class EventThread extends Thread {
 			} else {
 				event.thread().suspend();
 				println("Suspend Thread " + event.thread().name());
-				monitorMap.put(Integer.valueOf(value.toString()), event.thread()); 
+				monitorMap.put(Integer.valueOf(value.toString()),
+						event.thread());
 			}
 		}
 
 		// Notify suspended thread with the next SequencePoint to resume.
 		private void notifySuspendedThread() {
-			if ( monitorMap.containsKey(++currentSP)) {
-				 ThreadReference threadReference = monitorMap.get(currentSP);
-				 if ( threadReference.isSuspended() ) {
-					 threadReference.resume();
-					 println("Resume Thread " + threadReference.name());
-					 monitorMap.remove(currentSP);
-					 notifySuspendedThread();
-				 }
+			if (monitorMap.containsKey(++currentSP)) {
+				ThreadReference threadReference = monitorMap.get(currentSP);
+				if (threadReference.isSuspended()) {
+					threadReference.resume();
+					println("Resume Thread " + threadReference.name());
+					monitorMap.remove(currentSP);
+					notifySuspendedThread();
+				}
 			}
 		}
 
 		void exceptionEvent(ExceptionEvent event) {
+			System.out.println("Exception: " + event.exception() + " catch: "
+					+ event.catchLocation());
 		}
 
 		// Step to exception catch

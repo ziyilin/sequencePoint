@@ -30,7 +30,7 @@ public class ClassLoaderHelper {
 	}
 
 	private static void generateInstrumentor() {
-		String instrumentorClass = prop.getProperty("instumentorClass");
+		String instrumentorClass = prop.getProperty("instrumentorClass");
 		// No Instrumentor Class.
 		if (instrumentorClass == null)
 			return;

@@ -1,4 +1,4 @@
-package edu.sjtu.stap.squencepoint.instrumentation.linebased;
+package edu.sjtu.stap.checkmate.loadclass;
 
 import java.util.Map;
 import java.util.SortedSet;
