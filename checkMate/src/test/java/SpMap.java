@@ -16,6 +16,8 @@ public class SpMap {
 
 	// Check the sp whether belongs to current thread.
 	public static void checkThread(int sp) {
+		if (!ThreadSequenceMap.containsKey(sp))
+			return;
 		int value = ThreadSequenceMap.get(sp);
 		
 		if ( value == Thread.currentThread().hashCode())
