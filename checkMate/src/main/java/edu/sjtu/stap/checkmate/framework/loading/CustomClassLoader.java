@@ -127,7 +127,6 @@ public class CustomClassLoader extends ClassLoader {
 
 		String slashName = name.replace(".", File.separator);
 		String fullQualifiedName = File.separator + slashName + ".class";
-
 		try {
 			InputStream is = getResourceAsStream(fullQualifiedName);
 			if (is != null) {
