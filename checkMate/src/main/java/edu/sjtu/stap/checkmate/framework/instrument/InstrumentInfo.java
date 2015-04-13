@@ -5,9 +5,14 @@ package edu.sjtu.stap.checkmate.framework.instrument;
  * @author Yilei
  * 
  */
-public class InstrumentInfo implements Comparable {
+public class InstrumentInfo implements Comparable<Object> {
 	private int column, sp;
 	private String type, instance;
+	public static String TYPE_SPCHECK = "SPCHECK";
+	public static String TYPE_SPINSERT = "SPINSERT";
+	public static String INS_CURRENT="CURRENTTHREAD";
+	public static String VAR_FIELD="FIELD";
+	public static String VAR_LOCAL="LOCAL";
 
 	public InstrumentInfo(int column, String type, int sp, String instance) {
 		this.column = column;

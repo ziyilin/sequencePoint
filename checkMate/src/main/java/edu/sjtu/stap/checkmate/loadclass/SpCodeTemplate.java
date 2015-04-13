@@ -36,7 +36,11 @@ public class SpCodeTemplate implements Opcodes {
 	 * 
 	 * @param sp
 	 */
-	public void insertSpToThread(int sp, String instance) {
+	public void insertSpToThread(int sp, int localVarIndex) {
+		mv.visitIntInsn(BIPUSH, sp);
+		mv.visitVarInsn(ALOAD, localVarIndex);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "SpMap", "insertSP", "(II)V", false);
 	}
 
 	/**
@@ -47,6 +51,14 @@ public class SpCodeTemplate implements Opcodes {
 	public void insertSpCheckment(int sp) {
 		mv.visitIntInsn(BIPUSH, sp);
 		mv.visitMethodInsn(INVOKESTATIC, "SpMap", "checkThread", "(I)V", false);
+	}
+
+	public void insertSpToThread(String className, int sp, String varName) {
+		mv.visitIntInsn(BIPUSH, sp);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, className, varName, "Ljava/lang/Thread;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "SpMap", "insertSP", "(II)V", false);
 	}
 
 }

@@ -3,6 +3,7 @@ public class LoopThreadDemo {
 
 	public static void main(String[] args) {
 		for (int i = 0; i < 2; i++) {
+			int tt;
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					if (name != null) {
@@ -19,6 +20,7 @@ public class LoopThreadDemo {
 					}
 				}
 			});
+			int x;
 			if (i == 0) {
 				SpMap.insertSP(1, t.hashCode());
 				SpMap.insertSP(4, t.hashCode());

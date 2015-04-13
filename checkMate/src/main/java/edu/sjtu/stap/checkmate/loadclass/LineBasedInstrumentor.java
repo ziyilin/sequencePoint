@@ -77,7 +77,7 @@ public class LineBasedInstrumentor extends Instrumentor {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		try {
 			ClassVisitor cv = new LineBasedCVFactory(cw,
-					new LineBasedMVFactory(candidates.get(currentClass)));
+					new LineBasedMVFactory(currentClass, candidates.get(currentClass)));
 			cr.accept(cv, 0);
 			System.out.println("Instrumenting completed.");
 			classData = cw.toByteArray();
