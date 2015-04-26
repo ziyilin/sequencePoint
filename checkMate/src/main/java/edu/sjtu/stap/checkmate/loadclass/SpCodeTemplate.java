@@ -1,6 +1,5 @@
 package edu.sjtu.stap.checkmate.loadclass;
 
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 

@@ -56,8 +56,9 @@ class LineBasedMV extends MethodVisitor implements Opcodes {
 				new SpCodeTemplate(mv).insertSpToCurrentThread(instrumentInfo
 						.getSp());
 			else {
-				String varType = instrumentInfo.getInstance().split("+")[0];
-				String varName = instrumentInfo.getInstance().split("+")[1];
+				String insInfo[] = instrumentInfo.getInstance().split("[+]");
+				String varType = insInfo[0];
+				String varName = insInfo[1];
 				if (varType.equals(InstrumentInfo.VAR_LOCAL)) {
 					int localVarIndex = getLocalVarIndex(varName);
 					new SpCodeTemplate(mv).insertSpToThread(

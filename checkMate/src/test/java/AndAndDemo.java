@@ -9,11 +9,11 @@ public class AndAndDemo {
 	private static class Thread1 extends Thread {
 		public void run() {
 			if (name != null) {
-//				SpMap.insertSP(1, Thread.currentThread().hashCode());
-//				SpMap.checkThread(1);
+				SpMap.insertSP(1, Thread.currentThread().hashCode());
+				SpMap.checkThread(1);
 
-//				SpMap.insertSP(4, Thread.currentThread().hashCode());
-//				SpMap.checkThread(4);
+				SpMap.insertSP(4, Thread.currentThread().hashCode());
+				SpMap.checkThread(4);
 				if (name.equals("111")) {
 					System.out.println(name);
 				} else {
@@ -25,11 +25,11 @@ public class AndAndDemo {
 
 	private static class Thread2 extends Thread {
 		public void run() {
-//			SpMap.insertSP(2, Thread.currentThread().hashCode());
-//			SpMap.checkThread(2);
+			SpMap.insertSP(2, Thread.currentThread().hashCode());
+			SpMap.checkThread(2);
 			name = null;
-//			SpMap.insertSP(3, Thread.currentThread().hashCode());
-//			SpMap.checkThread(3);
+			SpMap.insertSP(3, Thread.currentThread().hashCode());
+			SpMap.checkThread(3);
 		}
 	}
 }
