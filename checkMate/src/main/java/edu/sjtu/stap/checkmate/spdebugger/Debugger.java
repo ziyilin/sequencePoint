@@ -143,7 +143,10 @@ public class Debugger {
         
         // Specify the class path. Currently, it only can be default package.
         Connector.Argument options =(Connector.Argument)arguments.get("options");
-        options.setValue("-cp \"D:\\Workspace\\sqDev\\sequencePoint\\checkMate\\target\\test-classes\"");
+        StringBuffer sb = new StringBuffer(System.getProperty("user.dir"));
+        String fileSeperator = System.getProperty("file.separator");
+        sb = sb.append(fileSeperator).append("target").append(fileSeperator).append("test-classes");
+        options.setValue("-cp \"" + sb.toString() + "\"");
 //        options.setValue("-D -Djava.system.class.loader=edu.sjtu.stap.checkmate.loadclass.CustomClassLoader");
 
         if (mainArg == null) {
