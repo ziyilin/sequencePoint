@@ -59,12 +59,10 @@ public class ClassLoaderHelper {
 
 	private static void getInstrumentationSettings() {
 		try {
-
 			prop = new Properties();
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();
 			InputStream stream = loader
 					.getResourceAsStream("instrument.properties");
-
 			prop.load(stream);
 		} catch (IOException e) {
 			System.err

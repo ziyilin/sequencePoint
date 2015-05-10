@@ -1,5 +1,9 @@
 package edu.sjtu.stap.checkmate.framework.instrument;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -43,5 +47,16 @@ public abstract class Instrumentor {
 	public void setProperties(Properties prop) {
 		properties=prop;
 	}
-	
+
+	public static void output2File(byte[] output, String fileName) throws IOException {
+		String outputDirectory = System.getProperty("user.dir") + System.getProperty("file.separator") + "target" + System.getProperty("file.separator");
+		File dir = new File(outputDirectory);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		FileOutputStream fos = new FileOutputStream(outputDirectory
+				+ fileName + ".class");
+		fos.write(output);
+		fos.close();
+	}
 }

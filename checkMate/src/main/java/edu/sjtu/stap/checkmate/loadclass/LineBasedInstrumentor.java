@@ -81,6 +81,8 @@ public class LineBasedInstrumentor extends Instrumentor {
 			cr.accept(cv, 0);
 			System.out.println("Instrumenting completed.");
 			classData = cw.toByteArray();
+			// off-line, write the class to file.
+			output2File(classData, currentClass);
 		} catch (Exception e) {
 			System.err.println("Fail to instrument, caused by:");
 			e.printStackTrace();
